@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from geopy.geocoders import Nominatim
 
 
-models.Base.metadata.create_all(bind=engine)
+#models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
