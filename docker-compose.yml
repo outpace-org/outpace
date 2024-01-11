@@ -1,0 +1,20 @@
+version: '3'
+services:
+  frontend:
+    build: ./outpace-front
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+  backend:
+    build: ./outpace-back
+    ports:
+      - '8000:8000'
+    # depends_on:
+      # - db
+    # environment:
+      # - DATABASE_URL=postgresql://user:password@db:5432/database
+  # db:
+    # image: postgres
+    # env_file:
+      # - .env

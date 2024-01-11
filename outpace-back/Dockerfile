@@ -10,4 +10,4 @@ COPY ./.env /code/.env
 
 COPY ./sql_app /code/app
 
-CMD ["uvicorn", "app.main:app", "--host", "localhost", "--port", "8000"]
+CMD python ./app/main.py
