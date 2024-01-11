@@ -10,11 +10,11 @@ services:
     build: ./outpace-back
     ports:
       - '8000:8000'
-    # depends_on:
-      # - db
-    # environment:
-      # - DATABASE_URL=postgresql://user:password@db:5432/database
-  # db:
-    # image: postgres
-    # env_file:
-      # - .env
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+  db:
+    image: postgres
+    env_file:
+      - .env
