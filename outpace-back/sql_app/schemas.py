@@ -58,7 +58,7 @@ class ActivityBase(BaseModel):
     start_date: datetime
     type: str
     summary_polyline: str
-    country: str
+    country: Optional[str]
 
 class Map(BaseModel):
     id: str
