@@ -38,7 +38,7 @@ class Activity(Base):
     start_date = Column(DateTime)
     type = Column(String)
     summary_polyline = Column(String)
-    country = Column(String)
+    country = Column(String, default="France")
 
 
 
