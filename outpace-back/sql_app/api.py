@@ -2,14 +2,16 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func
-from . import crud, models, schemas
-from .database import SessionLocal, engine
+import crud
+import models
+import schemas
+from database import SessionLocal, engine
 from haversine import haversine
 from fastapi.middleware.cors import CORSMiddleware
 from geopy.geocoders import Nominatim
 
 
-#models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
