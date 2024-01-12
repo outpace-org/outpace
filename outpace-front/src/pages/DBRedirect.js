@@ -46,7 +46,7 @@ const DBRedirect = (props) => {
                 console.log(props)
                 console.log(error.stack)
                 //If error, go back home
-                //navigate('/');
+                navigate('/redirect');
             }
         };
         fetch();
