@@ -22,7 +22,7 @@ const Home = () => {
     const handleLogin = () => {
         var strava_id = getStravaId;
         var goToAuth = false;
-        strava_id = undefined;
+        //strava_id = undefined;
         if (strava_id === undefined) {
             console.log("strava_id is not set.");
             goToAuth = true;
