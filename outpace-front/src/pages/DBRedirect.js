@@ -68,7 +68,7 @@ const DBRedirect = (props) => {
                 console.log(props)
                 console.log(error.stack)
                 //If error, go back home
-                navigate('/redirect');
+                window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
             }
         };
         fetch().then(r => {

@@ -5,7 +5,11 @@ WORKDIR /code
 # Install postgresql-client
 RUN apt-get update && apt-get install -y postgresql-client
 
+RUN apt-get update && apt-get install -y dos2unix
+
 COPY ./wait-for-postgres.sh /code/wait-for-postgres.sh
+
+RUN dos2unix /code/wait-for-postgres.sh
 
 COPY ./requirements.txt /code/requirements.txt
 
