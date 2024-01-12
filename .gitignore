@@ -1,1 +1,6 @@
 /outpace-front/.env
+.env
+outpace-back/.idea/inspectionProfiles/profiles_settings.xml
+*.xml
+*.iml
+*.pyc
