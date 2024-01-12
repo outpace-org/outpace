@@ -15,4 +15,4 @@ COPY ./.env /code/.env
 
 COPY ./sql_app /code/app
 
-CMD ["./wait-for-postgres.sh", "db", "5432", "python", "./app/main.py"]
+CMD ["bash", "wait-for-postgres.sh", "db", "5432", "python", "./app/main.py"]
