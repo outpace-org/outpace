@@ -4,3 +4,4 @@ outpace-back/.idea/inspectionProfiles/profiles_settings.xml
 *.iml
 *.pyc
 backlog.txt
+example.env
