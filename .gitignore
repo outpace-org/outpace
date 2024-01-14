@@ -1,8 +1,8 @@
-/outpace-front/.env
 outpace-back/.idea/inspectionProfiles/profiles_settings.xml
 *.xml
 *.iml
 *.pyc
 backlog.txt
 example.env
-et --hard HEAD@{2}
+outpace-front/.env
+.env
