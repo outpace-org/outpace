@@ -5,5 +5,4 @@ outpace-back/.idea/inspectionProfiles/profiles_settings.xml
 *.pyc
 backlog.txt
 example.env
-example.env
 et --hard HEAD@{2}
