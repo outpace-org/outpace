@@ -3,7 +3,6 @@ outpace-back/.idea/inspectionProfiles/profiles_settings.xml
 *.iml
 *.pyc
 backlog.txt
-example.env
-outpace-front/example.env
+outpace-front/.env
 .env
 outpace-back/.env
