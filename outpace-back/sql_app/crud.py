@@ -5,6 +5,7 @@ from . import models
 from . import schemas
 
 
+
 def get_refresh_token(db: Session, refresh_token_id: int):
     return db.query(models.RefreshToken).filter(models.RefreshToken.id == refresh_token_id).first()
 
