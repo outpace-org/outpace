@@ -6,12 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-username = os.getenv('OUTPACE_USERNAME')
+username = os.getenv('OUTPACE_USER')
 password = os.getenv('OUTPACE_PASSWORD')
 host = os.getenv('OUTPACE_HOST')
 port = os.getenv('OUTPACE_PORT')
-DB_NAME = os.getenv('OUTPACE_DB_NAME')
-
+DB_NAME = os.getenv('OUTPACE_DB')
+print(username, password, host, port, DB_NAME)
 SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)

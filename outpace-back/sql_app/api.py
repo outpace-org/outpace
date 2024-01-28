@@ -2,14 +2,15 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func
-import crud
-import models
-import schemas
-from database import SessionLocal, engine
+from . import crud
+from . import models
+from . import schemas
+from . import database
 from haversine import haversine
 from fastapi.middleware.cors import CORSMiddleware
+from geopy.geocoders import Nominatim
 
-models.Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
@@ -26,9 +27,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+geolocator = Nominatim(user_agent="outpace")
+
 # Dependency
 def get_db():
-    db = SessionLocal()
+    db = database.SessionLocal()
     try:
         yield db
     finally:
@@ -88,10 +91,12 @@ def add_activities(activities: List[schemas.ActivityCreate], db: Session = Depen
         if db_activity:
             raise HTTPException(status_code=400, detail="Activity ID already registered")
         if activity.type in ["Run", "Ride"]:
+            location = geolocator.reverse(f"{activity.start_latlng[0]},{activity.start_latlng[1]}")
             activity_cpy = schemas.ActivityBase(id=activity.id, strava_id=activity.athlete.id,total_elevation_gain=activity.total_elevation_gain,
                                                 elapsed_time=activity.elapsed_time, name=activity.name, distance=activity.distance, 
                                                 start_latlng=activity.start_latlng, end_latlng=activity.end_latlng,start_date=activity.start_date, 
-                                                type=activity.type, summary_polyline=activity.map.summary_polyline)
+                                                type=activity.type, summary_polyline=activity.map.summary_polyline,
+                                                country=location.raw['address']['country'])
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()

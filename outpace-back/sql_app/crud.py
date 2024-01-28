@@ -1,31 +1,39 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from . import models
+from . import schemas
+
 
 def get_refresh_token(db: Session, refresh_token_id: int):
     return db.query(models.RefreshToken).filter(models.RefreshToken.id == refresh_token_id).first()
 
+
 def get_refresh_token_by_strava_id(db: Session, strava_id: int):
     return db.query(models.RefreshToken).filter(models.RefreshToken.strava_id == strava_id).first()
 
-def create_refresh_token(db: Session, strava_id:int, read_activity:bool, refresh_token=str):
-    db_refresh_token = models.RefreshToken(strava_id=strava_id, read_activity=read_activity, refresh_token=refresh_token)
+
+def create_refresh_token(db: Session, strava_id: int, read_activity: bool, refresh_token=str):
+    db_refresh_token = models.RefreshToken(strava_id=strava_id, read_activity=read_activity,
+                                           refresh_token=refresh_token)
     db.add(db_refresh_token)  # corrected line
     db.commit()
     db.refresh(db_refresh_token)
     return db_refresh_token
 
+
 def get_athlete_slat(db: Session, strava_id: int):
     return db.query(models.AthleteSLAT).filter(models.AthleteSLAT.strava_id == strava_id).first()
 
-def create_athlete_slat(db: Session, token:str, read_activity:bool, expires_at: int, strava_id: int):
-    db_athlete_slat = models.AthleteSLAT(token=token, read_activity=read_activity,expires_at=expires_at, strava_id=strava_id)
+
+def create_athlete_slat(db: Session, token: str, read_activity: bool, expires_at: int, strava_id: int):
+    db_athlete_slat = models.AthleteSLAT(token=token, read_activity=read_activity, expires_at=expires_at,
+                                         strava_id=strava_id)
     db.add(db_athlete_slat)
     db.commit()
     db.refresh(db_athlete_slat)
     return db_athlete_slat
 
 
-def update_AthleteSLAT(db: Session, strava_id: int,athlete_slat: schemas.AthleteSLATBase, new_refresh_token: str):
+def update_AthleteSLAT(db: Session, strava_id: int, athlete_slat: schemas.AthleteSLATBase, new_refresh_token: str):
     # Fetch the RefreshToken with the given strava_id
     db_refresh_token = get_refresh_token_by_strava_id(db, strava_id=strava_id)
     if db_refresh_token is None:
@@ -52,8 +60,10 @@ def update_AthleteSLAT(db: Session, strava_id: int,athlete_slat: schemas.Athlete
 
     return db_athlete_slat
 
+
 def get_activity(db: Session, activity_id: int):
     return db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+
 
 def create_activity(db: Session, activity: schemas.ActivityBase):
     db_activity = models.Activity(**activity.dict())
@@ -62,6 +72,6 @@ def create_activity(db: Session, activity: schemas.ActivityBase):
     db.refresh(db_activity)
     return db_activity
 
+
 def get_activities_by_strava_id(db: Session, strava_id: int):
     return db.query(models.Activity).filter(models.Activity.strava_id == strava_id).all()
-
