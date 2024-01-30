@@ -75,3 +75,11 @@ def create_activity(db: Session, activity: schemas.ActivityBase):
 
 def get_activities_by_strava_id(db: Session, strava_id: int):
     return db.query(models.Activity).filter(models.Activity.strava_id == strava_id).all()
+
+
+def get_last_activity_timestamp_by_strava_id(db: Session, strava_id: int):
+    return (db.query(models.Activity.start_date)
+            .filter(models.Activity.strava_id == strava_id)
+            .order_by(models.Activity.start_date.desc())
+            .first())
+

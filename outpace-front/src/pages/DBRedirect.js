@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { setUserProfile, setUserActivities, setUserClimbs } from '../actions';
+import {setUserProfile, setUserActivities, setUserClimbs, setUserId} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +34,7 @@ const DBRedirect = (props) => {
                 const userClimbs = await getUserActivitiesFromDB(userID);
 
                 props.setUserClimbs(userClimbs);
+                props.setUserId(userID);
                 console.log(userClimbs)
                 if (userClimbs.length === 0) {
                     window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
@@ -65,5 +66,6 @@ const mapStateToProps = (state) => {
 };
 
 export default connect(mapStateToProps, {
-    setUserClimbs
+    setUserClimbs,
+    setUserId
 })(DBRedirect);

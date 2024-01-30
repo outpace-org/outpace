@@ -66,15 +66,32 @@ export const postUserActivities = async (acts) => {
     }
 };
 
-export const getUserActivitiesFromDB = async (userID) => {
+export const getLastActivityTimestamp = async (userID) => {
     try {
-        console.log("Trying to fetch", `${REACT_APP_HOST_URL}/activities/elevation/${userID}/8000`)
-        const response = await fetch(`${REACT_APP_HOST_URL}/activities/elevation/${userID}/8000`);
+        const str = `${REACT_APP_HOST_URL}/activities/last_date/${userID}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        return data;
+        const data = response.json()
+        return await data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+// export const fetchStravaAfterDate
+
+export const getUserActivitiesFromDB = async (userID) => {
+    try {
+        const str = `${REACT_APP_HOST_URL}/activities/elevation/${userID}/30000`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
     } catch (error) {
         console.log(error);
     }
@@ -148,6 +165,20 @@ export const getUserActivities = async (userID, accessToken) => {
     try {
         const response = await axios.get(
             `https://www.strava.com/api/v3/athletes/${userID}/activities?after=1577836800&per_page=200`,
+            { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getUserActivitiesAfter = async (userID, accessToken, after) => {
+    try {
+        let str = `https://www.strava.com/api/v3/athletes/${userID}/activities?after=${after}&per_page=200`
+        console.log(str)
+        const response = await axios.get(str
+            ,
             { headers: { Authorization: `Bearer ${accessToken}` } }
         );
         return response;

@@ -58,6 +58,25 @@ const setUserClimbsReducer = (userClimbs = null, action) => {
     }
 };
 
+const setUserIdReducer = (userId= null, action) => {
+    switch (action.type) {
+        case "SET_USER_ID":
+            return action.payload;
+        default:
+            return userId;
+    }
+}
+
+const setUserTokenReducer = (token= null, action) => {
+    switch (action.type) {
+        case "SET_USER_TOKEN":
+            return action.payload;
+        default:
+            return token;
+    }
+}
+
+
 export default combineReducers({
     userProfile: setUserProfileReducer,
     userActivities: setUserActivitiesReducer,
@@ -65,4 +84,6 @@ export default combineReducers({
     metric: changeUnitsReducer,
     sports: setSportsReducer,
     totalDistance: setTotalDistanceReducer,
+    userId: setUserIdReducer,
+    userToken: setUserTokenReducer,
 });

@@ -8,13 +8,17 @@ class RefreshTokenBase(BaseModel):
     refresh_token: str
     read_activity: bool
 
+
 class RefreshTokenCreate(RefreshTokenBase):
     pass
 
+
 class RefreshToken(RefreshTokenCreate):
-    id : int
+    id: int
+
     class Config:
         from_attributes = True
+
 
 class AthleteSLATBase(BaseModel):
     token: str
@@ -25,17 +29,22 @@ class AthleteSLATBase(BaseModel):
 class AthleteSLATCreate(AthleteSLATBase):
     pass
 
+
 class AthleteSLAT(AthleteSLATBase):
     id: int
     strava_id: int
+
     class Config:
         from_attributes = True
+
 
 class AthleteSLATUpdate(BaseModel):
     token: str
 
+
 class AthleteBase(BaseModel):
     id: int
+
 
 class TokenRegistration(BaseModel):
     access_token: str
@@ -43,7 +52,6 @@ class TokenRegistration(BaseModel):
     expires_at: int
     refresh_token: str
     token_type: str
-
 
 
 class ActivityBase(BaseModel):
@@ -60,10 +68,18 @@ class ActivityBase(BaseModel):
     summary_polyline: str
     country: Optional[str]
 
+
+class ActivityInfo(BaseModel):
+    token: str
+    refresh_token: str
+    last_date: int
+
+
 class Map(BaseModel):
     id: str
     summary_polyline: str
     resource_state: int
+
 
 class ActivityCreate(BaseModel):
     id: int
@@ -82,5 +98,3 @@ class ActivityCreate(BaseModel):
 class Activity(ActivityBase):
     class Config:
         from_attributes = True
-
-

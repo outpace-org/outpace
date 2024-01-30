@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { setUserProfile, setUserActivities, setUserClimbs } from '../actions';
+import {setUserProfile, setUserActivities, setUserClimbs, setUserId, setUserToken} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +41,8 @@ const StravaRedirect = (props) => {
                 props.setUserProfile(responseTokens.athlete);
                 const accessToken = responseTokens.access_token;
                 const userID = responseTokens.athlete.id;
-                
+                props.setUserId(userID);
+                props.setUserToken(responseTokens.access_token);
                 //adding strava_id to cache
                 setStravaId(responseTokens.athlete.id);
 
@@ -115,5 +116,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {
     setUserActivities,
     setUserProfile,
-    setUserClimbs
+    setUserClimbs,
+    setUserId,
+    setUserToken
 })(StravaRedirect);
