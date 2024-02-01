@@ -63,7 +63,7 @@ def read_refresh_token(refresh_token_id: int, db: Session = Depends(get_db)):
 
 @app.get("/refresh_token_strava/{strava_id}", response_model=schemas.RefreshToken)
 def read_refresh_token_strava(strava_id: int, db: Session = Depends(get_db)):
-    db_refresh_token = crud.get_refresh_token(db, strava_id=strava_id)
+    db_refresh_token = crud.get_refresh_token_by_strava_id(db, strava_id=strava_id)
     if db_refresh_token is None:
         raise HTTPException(status_code=404, detail="Athlete not found")
     return db_refresh_token
@@ -81,13 +81,13 @@ def read_AthleteSLAT(
 
 @app.put("/refreshtoken/{strava_id}/AthleteSLAT/", response_model=schemas.AthleteSLATBase)
 def update_token(
-        strava_id: int, athlete_slat: schemas.AthleteSLATBase, new_refresh_token: str, db: Session = Depends(get_db)
+        strava_id: int, athlete_slat: schemas.AthleteSLATUpdate, db: Session = Depends(get_db)
 ):
     db_refresh_token = crud.get_refresh_token_by_strava_id(db, strava_id=strava_id)
     if db_refresh_token is None:
         raise HTTPException(status_code=404, detail="RefreshToken not found")
-    return crud.update_AthleteSLAT(db=db, strava_id=strava_id, athlete_slat=athlete_slat,
-                                   new_refresh_token=new_refresh_token)
+    print("is_ok")
+    return crud.update_AthleteSLAT(db=db, strava_id=strava_id, athlete_slat=athlete_slat)
 
 
 @app.post("/activities/", response_model=List[schemas.Activity])
@@ -197,9 +197,11 @@ async def get_trips(strava_id: int, db: Session = Depends(get_db)):
 
 @app.get("/activities/last_date/{strava_id}", response_model=ActivityInfo)
 def get_last_date(strava_id: int, db: Session = Depends(get_db)):
-    tok = crud.get_athlete_slat(db, strava_id).token
+    token_obj = crud.get_athlete_slat(db, strava_id)
+    tok = token_obj.token
+    expires_in = token_obj.expires_at - int(datetime.datetime.now().timestamp())
     refresh_tok = crud.get_refresh_token_by_strava_id(db, strava_id).refresh_token
     last_date_row = crud.get_last_activity_timestamp_by_strava_id(db, strava_id)
     last_date = last_date_row[0] if last_date_row else None
-    return ActivityInfo(token=tok, refresh_token=refresh_tok, last_date=last_date.timestamp())
+    return ActivityInfo(token=tok, refresh_token=refresh_tok, last_date=last_date.timestamp(), expires_in=expires_in)
 

@@ -51,6 +51,58 @@ export const postUserToken = async (toks) => {
     }
 };
 
+// Function to get refresh token from the database
+async function getRefreshTokenFromDB(stravaId) {
+    try {
+        const response = await axios.get(`${REACT_APP_HOST_URL}/refresh_token_strava/${stravaId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+}
+
+// Function to post new token to the database
+async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
+    try {
+        const response = await axios.put(`${REACT_APP_HOST_URL}/refreshtoken/${stravaId}/AthleteSLAT/`, {
+                "token": newToken,
+                "read_activity": true,
+                "expires_at": expiresAt,
+                "new_refresh_token":newRefreshToken
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+}
+
+
+// To fetch new token from strava and store it in DB
+export const reloadToken = async (stravaId) => {
+
+    // Retrieve client_id and client_secret from .env
+    const client_id = process.env.REACT_APP_CLIENT_ID;
+    const client_secret = process.env.REACT_APP_CLIENT_SECRET;
+
+    // Retrieve refresh_token from the function getRefreshTokenFromDB
+    const refresh_token = await getRefreshTokenFromDB(stravaId);
+    try {
+        const response = await axios.post('https://www.strava.com/api/v3/oauth/token', {
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "grant_type": 'refresh_token',
+            "refresh_token": refresh_token.refresh_token,
+        });
+        console.log("response", response)
+
+        // Call the function postNewToken with the new token and new refresh_token
+        await postNewToken(stravaId, response.data.access_token, response.data.refresh_token, response.data.expires_at);
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+};
+
 export const postUserActivities = async (acts) => {
     try {
         const response = await fetch(`${REACT_APP_HOST_URL}/activities/`, {

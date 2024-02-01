@@ -38,8 +38,8 @@ class AthleteSLAT(AthleteSLATBase):
         from_attributes = True
 
 
-class AthleteSLATUpdate(BaseModel):
-    token: str
+class AthleteSLATUpdate(AthleteSLATBase):
+    new_refresh_token: str
 
 
 class AthleteBase(BaseModel):
@@ -73,6 +73,7 @@ class ActivityInfo(BaseModel):
     token: str
     refresh_token: str
     last_date: int
+    expires_in: int
 
 
 class Map(BaseModel):
