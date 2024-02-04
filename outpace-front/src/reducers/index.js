@@ -9,6 +9,16 @@ const setUserProfileReducer = (user = null, action) => {
     }
 };
 
+
+const setUserTripsReducer = (userTrips = null, action) => {
+    switch (action.type) {
+        case "SET_USER_TRIPS":
+            return action.payload;
+        default:
+            return userTrips;
+    }
+};
+
 const setUserActivitiesReducer = (userActivities = null, action) => {
     switch (action.type) {
         case "SET_USER_ACTIVITIES":
@@ -86,4 +96,5 @@ export default combineReducers({
     totalDistance: setTotalDistanceReducer,
     userId: setUserIdReducer,
     userToken: setUserTokenReducer,
+    userTrips: setUserTripsReducer
 });

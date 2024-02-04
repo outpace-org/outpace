@@ -149,57 +149,20 @@ export const getUserActivitiesFromDB = async (userID) => {
     }
 };
 
-export const getUserActivitiesFromDB2 = async (userID, accessToken) => {
+export const getUserTripsFromDB = async (stravaId) => {
     try {
-        const response = await fetch(`${REACT_APP_HOST_URL}/activities/${userID}`);
+        const str = `${REACT_APP_HOST_URL}/trips/${stravaId}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const data = await response.json();
-        return data;
+        const data = response.json();
+        return await data;
     } catch (error) {
         console.log(error);
     }
 };
-
-/*
-export const postUserToken = async (toks) => {
-    try {
-        const response = await axios.post('http://localhost:8000/register_token/', toks, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-export const postUserActivities = async (acts) => {
-    try {
-        const response = await axios.post('http://localhost:8000/activities/', acts, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-export const getUserActivitiesFromDB = async (userID, accessToken) => {
-    try {
-        const response = await axios.get(
-            `http://localhost:8000/activities/${userID}`
-        );
-        return response.data;
-    } catch (error) {
-        console.log(error);
-    }
-};*/
-
 
 export const getUserData = async (userID, accessToken) => {
     try {

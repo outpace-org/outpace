@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from . import models
 from . import schemas
 
@@ -82,4 +82,72 @@ def get_last_activity_timestamp_by_strava_id(db: Session, strava_id: int):
             .filter(models.Activity.strava_id == strava_id)
             .order_by(models.Activity.start_date.desc())
             .first())
+
+
+def create_trip(db: Session, trip: schemas.TripCreate):
+    db_trip = models.Trip(strava_id=trip.strava_id, name=trip.name)
+    db.add(db_trip)
+    db.commit()
+    db.refresh(db_trip)
+    for activity_id in trip.activities_id:
+        db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+        if db_activity is not None:
+            db_activity.trip_id = db_trip.id
+    db.commit()
+    return db_trip
+
+
+def update_trip(db: Session, trip_id: int, new_name: str):
+    db_trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+    if db_trip is None:
+        return None
+    db_trip.name = new_name
+    db.commit()
+    return db_trip
+
+
+def add_activity_to_trip(db: Session, trip_id: int, activity_id: int):
+    db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+    if db_activity is None:
+        return None
+    db_activity.trip_id = trip_id
+    db.commit()
+    return db_activity
+
+
+def remove_activity_from_trip(db: Session, trip_id: int, activity_id: int):
+    db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id,
+                                                   models.Activity.trip_id == trip_id).first()
+    if db_activity is None:
+        return None
+    db_activity.trip_id = None
+    db.commit()
+    return db_activity
+
+
+def delete_trip(db: Session, trip_id: int):
+    db_trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+    if db_trip is None:
+        return None
+    db.delete(db_trip)
+    db.commit()
+    return db_trip
+
+
+def get_trips_by_strava_id(db: Session, strava_id: int):
+    return db.query(models.Trip).options(joinedload(models.Trip.activities)).filter(
+        models.Trip.strava_id == strava_id).all()
+
+
+def create_dashboard(db: Session, strava_id: int):
+    db_dashboard = models.Dashboard(strava_id=strava_id)
+    db.add(db_dashboard)
+    db.commit()
+    return db_dashboard
+
+
+def get_dashboard(db: Session, strava_id: int):
+    return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
+
+
 

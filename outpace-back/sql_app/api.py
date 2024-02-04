@@ -1,6 +1,6 @@
 import datetime
-from typing import List
-from fastapi import Depends, FastAPI, HTTPException
+from typing import List, Dict, Tuple
+from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func
 from . import crud
@@ -91,7 +91,8 @@ def update_token(
 
 
 @app.post("/activities/", response_model=List[schemas.Activity])
-def add_activities(activities: List[schemas.ActivityCreate], db: Session = Depends(get_db)):
+def add_activities(activities: List[schemas.ActivityCreate], background_taks: BackgroundTasks,
+                   db: Session = Depends(get_db)):
     db_activities = []
     for activity in activities:
         db_refresh_token = crud.get_refresh_token_by_strava_id(db, strava_id=activity.athlete.id)
@@ -101,7 +102,6 @@ def add_activities(activities: List[schemas.ActivityCreate], db: Session = Depen
         if db_activity:
             raise HTTPException(status_code=400, detail="Activity ID already registered")
         if activity.type in ["Run", "Ride"]:
-            # location = geolocator.reverse(f"{activity.start_latlng[0]},{activity.start_latlng[1]}")
             activity_cpy = schemas.ActivityBase(id=activity.id, strava_id=activity.athlete.id,
                                                 total_elevation_gain=activity.total_elevation_gain,
                                                 elapsed_time=activity.elapsed_time, name=activity.name,
@@ -110,10 +110,10 @@ def add_activities(activities: List[schemas.ActivityCreate], db: Session = Depen
                                                 start_date=activity.start_date,
                                                 type=activity.type, summary_polyline=activity.map.summary_polyline,
                                                 country=None)
-            # country=location.raw['address']['country'])
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()
+    background_taks.add_task(process_activities, activities=db_activities, db=db)
     return db_activities
 
 
@@ -138,9 +138,7 @@ def get_activities_with_elevation(strava_id: int, elevation: int, db: Session = 
     OrderedElevation = aliased(ordered_elevation)
 
     # Define the 'minimal_set' CTE
-    minimal_set = select([
-        OrderedElevation
-    ]).select_from(OrderedElevation).where(
+    minimal_set = select([OrderedElevation]).select_from(OrderedElevation).where(
         OrderedElevation.c.running_total - OrderedElevation.c.total_elevation_gain < elevation).cte('minimal_set')
 
     # Alias the CTE to use it in the final query
@@ -162,37 +160,63 @@ def get_activities_with_elevation(strava_id: int, elevation: int, db: Session = 
 
 
 def is_trip(activities):
-    if len(activities) < 3:
+    limit = 3 if activities[0].type == 'Ride' else 2
+    if len(activities) < 2:
         return False
     for i in range(1, len(activities)):
         start = activities[i].start_latlng
-        end = activities[i - 1].end_latlng
+        end = activities[i].end_latlng
+        prev_end = activities[i - 1].end_latlng
         start_date = activities[i].start_date
         end_date = activities[i - 1].start_date
-        if haversine(start, end) > 10 or (start_date - end_date).days > 7:
+        if haversine(start, prev_end) > 10 or (start_date - end_date).days > 7 or haversine(prev_end, end) < 6:
             return False
     return True
 
 
-def find_trips(activities):
+def find_trips(activities_filtered):
+    activities_sorted = sorted(activities_filtered, key=lambda activity: activity.start_date)
     trips = []
-    for i in range(len(activities)):
-        for j in range(len(activities) + 2, i + 2, -1):
-            trip = activities[i:j]
+    for i in range(len(activities_sorted)):
+        for j in range(len(activities_sorted), i + 2, -1):
+            trip = activities_sorted[i:j]
             if is_trip(trip) and not any(set(trip).issubset(set(larger_trip)) for larger_trip in trips):
                 trips.append(trip)
                 break
-
     return trips
 
 
-@app.get("/trips/{strava_id}", response_model=List[List[schemas.Activity]])
-async def get_trips(strava_id: int, db: Session = Depends(get_db)):
-    activities = db.query(models.Activity).filter(models.Activity.strava_id == strava_id,
-                                                  models.Activity.distance > 65000).order_by(
-        models.Activity.start_date).all()
-    trips = find_trips(activities)
-    return trips
+def find_bike_trips(activities):
+    activities_filtered = [activity for activity in activities if activity.distance > 65000]
+    return find_trips(activities_filtered)
+
+
+def find_hiking_trips(activities):
+    activities_filtered = [activity for activity in activities if
+                           (activity.distance > 10000 and activity.type != "Ride")]
+    return find_trips(activities_filtered)
+
+
+def process_activities(activities, db: Session = Depends(get_db)):
+    strava_id = activities[0].strava_id
+    print("creating trips")
+    # handling the creating of trips
+    trips = find_bike_trips(activities) + find_hiking_trips(activities)
+
+    for trip in trips:
+        crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, name=trip[0].name + " " + trip[-1].name,
+                                                activities_id=[act.id for act in trip]))
+
+    print("trips created")
+
+    # changing countries
+    for activity in activities:
+        location = geolocator.reverse(f"{activity.start_latlng[0]},{activity.start_latlng[1]}", language='en')
+        country = location.raw['address']['country']
+        print(activity.name, country)
+        activity.country = country
+        db.add(activity)  # ensure the object is in 'pending' state
+    db.commit()
 
 
 @app.get("/activities/last_date/{strava_id}", response_model=ActivityInfo)
@@ -205,3 +229,62 @@ def get_last_date(strava_id: int, db: Session = Depends(get_db)):
     last_date = last_date_row[0] if last_date_row else None
     return ActivityInfo(token=tok, refresh_token=refresh_tok, last_date=last_date.timestamp(), expires_in=expires_in)
 
+
+@app.post("/trips/")
+def create_trip(trip: schemas.TripCreate, db: Session = Depends(get_db)):
+    return crud.create_trip(db=db, trip=trip)
+
+
+@app.put("/trips/{trip_id}")
+def update_trip(trip_id: int, new_name: str, db: Session = Depends(get_db)):
+    updated_trip = crud.update_trip(db=db, trip_id=trip_id, new_name=new_name)
+    if updated_trip is None:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    return {"message": "Trip updated successfully"}
+
+
+@app.post("/trips/{trip_id}/activities/{activity_id}")
+def add_activity(trip_id: int, activity_id: int, db: Session = Depends(get_db)):
+    added_activity = crud.add_activity_to_trip(db=db, trip_id=trip_id, activity_id=activity_id)
+    if added_activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return {"message": "Activity added to trip successfully"}
+
+
+@app.delete("/trips/{trip_id}/activities/{activity_id}")
+def remove_activity(trip_id: int, activity_id: int, db: Session = Depends(get_db)):
+    removed_activity = crud.remove_activity_from_trip(db=db, trip_id=trip_id, activity_id=activity_id)
+    if removed_activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return {"message": "Activity removed successfully"}
+
+
+@app.delete("/trips/{trip_id}")
+def delete_trip(trip_id: int, db: Session = Depends(get_db)):
+    deleted_trip = crud.delete_trip(db=db, trip_id=trip_id)
+    if deleted_trip is None:
+        raise HTTPException(status_code=404, detail="Trip not found")
+    return {"message": "Trip deleted successfully"}
+
+
+@app.get("/trips/{strava_id}", response_model=List[schemas.TripBase])
+def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
+    db_trips = crud.get_trips_by_strava_id(db, strava_id)
+    if not db_trips:
+        raise HTTPException(status_code=404, detail="No trips found for this strava_id")
+    return db_trips
+
+
+@app.get("/activities/countries/{strava_id}", response_model=List[Tuple[str, int]])
+def get_activity_count_by_country(strava_id: int, db: Session = Depends(get_db)):
+    db_resp = (db.query(models.Activity.country, func.count(models.Activity.id))
+               .where(models.Activity.strava_id == strava_id).group_by(models.Activity.country).all())
+    if not db_resp:
+        raise HTTPException(status_code=404, detail="No heatmap found for this strava_id")
+    return db_resp
+
+
+@app.get("/dashboard/{strava_id}", response_model=bool)
+def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard(db, strava_id)
+    return db_dash is not None

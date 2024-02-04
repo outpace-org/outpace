@@ -61,11 +61,8 @@ const DBRedirect = (props) => {
 }
 
 
-const mapStateToProps = (state) => {
-    return { authTokenURL: state.authTokenURL };
-};
 
-export default connect(mapStateToProps, {
+export default connect(null, {
     setUserClimbs,
     setUserId
 })(DBRedirect);

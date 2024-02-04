@@ -5,6 +5,13 @@ export const setUserActivities = (data) => {
     };
 };
 
+export const setUserTrips = (data) => {
+    return {
+        type: "SET_USER_TRIPS",
+        payload: data,
+    };
+};
+
 export const setUserProfile = (data) => {
     return {
         type: "SET_USER_PROFILE",

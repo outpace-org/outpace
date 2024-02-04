@@ -1,6 +1,8 @@
+from typing import List
+
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, BigInteger, ARRAY, DateTime
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
 
 from .database import Base
 
@@ -13,6 +15,7 @@ class RefreshToken(Base):
     refresh_token = Column(String)
     read_activity = Column(Boolean)
     slat = relationship("AthleteSLAT", back_populates="refresher")
+
 
 class AthleteSLAT(Base):
     __tablename__ = "athlete_slats"
@@ -29,6 +32,7 @@ class Activity(Base):
 
     id = Column(BigInteger, primary_key=True, index=True)
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
+    trip_id = Column(BigInteger, ForeignKey("trips.id"))
     total_elevation_gain = Column(Float)
     elapsed_time = Column(Integer)
     name = Column(String)
@@ -39,6 +43,19 @@ class Activity(Base):
     type = Column(String)
     summary_polyline = Column(String)
     country = Column(String, default="France")
+    trip = relationship("Trip", back_populates="activities")
 
 
+class Trip(Base):
+    __tablename__ = "trips"
 
+    id = Column(BigInteger, primary_key=True, index=True)
+    strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
+    name = Column(String)
+    activities = relationship("Activity", back_populates="trip")
+
+class Dashboard(Base):
+    __tablename__ = "dashboards"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))

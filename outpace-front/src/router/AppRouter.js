@@ -7,6 +7,7 @@ import NotFound from "../pages/NotFound";
 import YourActivities from "../pages/YourActivities";
 import DBRedirect from "../pages/DBRedirect";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import YourTrips from "../pages/YourTrips";
 
 class AppRouter extends React.Component {
     render() {
@@ -20,6 +21,7 @@ class AppRouter extends React.Component {
                         <Route path="/redirectDB" element={<DBRedirect/>} />
                         <Route path="/redirect/exchange_token" element={<StravaRedirect/>} />
                         <Route path="/yourclimbs" element={<YourActivities/>} />
+                        <Route path="/yourtrips" element={<YourTrips/>} />
                         <Route path="/about" element={<About/>} />
                     </Routes>
                 </div>

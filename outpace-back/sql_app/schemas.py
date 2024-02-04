@@ -99,3 +99,21 @@ class ActivityCreate(BaseModel):
 class Activity(ActivityBase):
     class Config:
         from_attributes = True
+
+
+class TripBase(BaseModel):
+    strava_id: int
+    name: str
+    activities_id: List[int]
+
+
+class TripCreate(TripBase):
+    pass
+
+
+class Trip(TripBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+

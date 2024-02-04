@@ -1,8 +1,15 @@
 import {React} from "react";
-import {useSelector} from "react-redux";
+import {connect, useSelector} from "react-redux";
 import Activity from "../components/Activity";
-import {getLastActivityTimestamp, getUserActivitiesAfter, postUserActivities, reloadToken} from "../utils/functions";
+import {
+    getLastActivityTimestamp,
+    getUserActivitiesAfter,
+    getUserTripsFromDB,
+    postUserActivities,
+    reloadToken
+} from "../utils/functions";
 import {useNavigate} from "react-router-dom";
+import {setUserTrips} from "../actions";
 
 async function fetchNewActivities(strava_id) {
     const data = await getLastActivityTimestamp(strava_id);
@@ -18,7 +25,7 @@ async function fetchNewActivities(strava_id) {
     return activities;
 }
 
-const YourActivities = () => {
+const YourActivities = (props) => {
     const activities = useSelector((state) => state.userClimbs);
     const strava_id = useSelector((state) => state.userId);
     const navigate = useNavigate();
@@ -28,6 +35,14 @@ const YourActivities = () => {
             navigate("/redirectDB");
         });
     };
+
+    function handleButtonClick2() {
+        getUserTripsFromDB(strava_id).then(async (trips) => {
+            console.log("Your trips were", trips);
+            props.setUserTrips(trips);
+            navigate("/yourTrips")
+        })
+    }
 
     return (
         <div style={{padding: "10px"}}>
@@ -40,8 +55,18 @@ const YourActivities = () => {
                     Reload my activities from Strava
                 </button>
             </div>
+            <div style={{textAlign: "center"}}>
+                <button onClick={handleButtonClick2}>
+                    Go to my trips
+                </button>
+            </div>
         </div>
     );
 };
 
-export default YourActivities;
+const mapDispatchToProps = {
+    setUserTrips
+};
+
+export default connect(null, mapDispatchToProps)(YourActivities);
+
