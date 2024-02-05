@@ -4,10 +4,11 @@ import StravaRedirect from "../pages/StravaRedirect";
 import Navbar from "../components/Navbar";
 import About from "../pages/About"
 import NotFound from "../pages/NotFound";
-import YourActivities from "../pages/YourActivities";
 import DBRedirect from "../pages/DBRedirect";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import YourTrips from "../pages/YourTrips";
+import Dashboard from "../pages/Dashboard";
+import Summary from "../pages/Summary";
+import TripView from "../pages/TripView";
 
 class AppRouter extends React.Component {
     render() {
@@ -20,8 +21,9 @@ class AppRouter extends React.Component {
                         <Route path="/redirect" element={<StravaRedirect/>} />
                         <Route path="/redirectDB" element={<DBRedirect/>} />
                         <Route path="/redirect/exchange_token" element={<StravaRedirect/>} />
-                        <Route path="/yourclimbs" element={<YourActivities/>} />
-                        <Route path="/yourtrips" element={<YourTrips/>} />
+                        <Route path="/summary" element={<Summary/>} />
+                        <Route path="/dashboard" element={<Dashboard/>} />
+                        <Route path="/trip_view" element={<TripView/>} />
                         <Route path="/about" element={<About/>} />
                     </Routes>
                 </div>

@@ -3,21 +3,10 @@ import {Map, Marker, GeoJson} from "pigeon-maps";
 import turfBbox from '@turf/bbox'
 import {featureCollection as turfFeatureCollection, point as turfPoint} from '@turf/helpers'
 import geoViewport from '@mapbox/geo-viewport'
+import {centerZoomFromLocations, mapboxProvider} from "../utils/functions";
 
 var polyline = require('@mapbox/polyline');
 
-
-function centerZoomFromLocations(locations, width = 564, height = 300) {
-    const points = locations.map(([lat, lng]) => turfPoint([lat, lng]));
-    const features = turfFeatureCollection(points)
-    const bounds = turfBbox(features)
-    const {center, zoom} = geoViewport.viewport(bounds, [width, height])
-    console.log("bounds", bounds, "center", center, "zoom", zoom)
-    return {
-        center,
-        zoom: Math.min(zoom, 13)
-    }
-}
 
 function Activity({activity}) {
     var coordinates = [];
@@ -28,13 +17,15 @@ function Activity({activity}) {
         coordinates = polyline.decode(activity.map.summary_polyline).map(([lng, lat]) => [lat, lng]);
     }
     const mid = coordinates[parseInt(coordinates.length / 2)];
-    const {center, zoom} = centerZoomFromLocations(coordinates);
+    const mapWidth = window.innerWidth * 0.5;
+    const mapHeight = window.innerHeight * 0.3;
+    const {center, zoom} = centerZoomFromLocations(coordinates, mapWidth, mapHeight);
     console.log("mid", mid, "center", center)
     return (
         <div className="row">
             <div className="column33">
                 <h3>{activity.name}</h3>
-                <p>Total Elevation Gain: {activity.total_elevation_gain}</p>
+                <p>Total Elevation Gain: {activity["total_elevation_gain"]}</p>
                 <p>Elapsed Time: {activity.elapsed_time}</p>
                 <p>Distance: {activity.distance}</p>
                 <p>Type: {activity.type}</p>
@@ -43,7 +34,7 @@ function Activity({activity}) {
                 <p>Start Date: {activity.start_date}</p>
             </div>
             <div className="column66">
-                <Map height={300} defaultCenter={[center[1], center[0]]} defaultZoom={zoom}>
+                <Map width={mapWidth} height={mapHeight} defaultCenter={[center[1], center[0]]} defaultZoom={zoom} provider={mapboxProvider}>
                     <GeoJson
                         data={{
                             type: 'FeatureCollection',

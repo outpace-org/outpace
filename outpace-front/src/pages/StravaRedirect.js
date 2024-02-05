@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import {setUserProfile, setUserActivities, setUserClimbs, setUserId, setUserToken} from '../actions';
+import {setUserProfile, setUserActivities, setUsersummary, setUserId, setUserToken} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -57,7 +57,7 @@ const StravaRedirect = (props) => {
                 console.log(userActivities);
                 console.log(resp);
 
-                props.setUserClimbs(userActivities.data);
+                props.setUsersummary(userActivities.data);
 
                 props.setUserActivities({
                     runTotal: {
@@ -91,7 +91,7 @@ const StravaRedirect = (props) => {
 
                 // Once complete, go to display page
                 //navigate('/yourdistance');
-                navigate('/yourclimbs');
+                navigate('/summary');
             } catch (error) {
                 console.log(props)
                 console.log(error.stack)
@@ -116,7 +116,7 @@ const mapStateToProps = (state) => {
 export default connect(mapStateToProps, {
     setUserActivities,
     setUserProfile,
-    setUserClimbs,
+    setUsersummary,
     setUserId,
     setUserToken
 })(StravaRedirect);

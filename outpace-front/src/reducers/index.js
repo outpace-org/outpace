@@ -59,12 +59,12 @@ const setSportsReducer = (sports = [], action) => {
     }
 };
 
-const setUserClimbsReducer = (userClimbs = null, action) => {
+const setUserSummaryReducer = (usersummary = null, action) => {
     switch (action.type) {
-        case "SET_USER_CLIMBS":
+        case "SET_USER_SUMMARY":
             return action.payload;
         default:
-            return userClimbs;
+            return usersummary;
     }
 };
 
@@ -74,6 +74,15 @@ const setUserIdReducer = (userId= null, action) => {
             return action.payload;
         default:
             return userId;
+    }
+}
+
+const setDistanceRidesReducer = (distanceRides= null, action) => {
+    switch (action.type) {
+        case "SET_DISTANCE_RIDES":
+            return action.payload;
+        default:
+            return distanceRides;
     }
 }
 
@@ -90,11 +99,12 @@ const setUserTokenReducer = (token= null, action) => {
 export default combineReducers({
     userProfile: setUserProfileReducer,
     userActivities: setUserActivitiesReducer,
-    userClimbs: setUserClimbsReducer,
+    usersummary: setUserSummaryReducer,
     metric: changeUnitsReducer,
     sports: setSportsReducer,
     totalDistance: setTotalDistanceReducer,
     userId: setUserIdReducer,
     userToken: setUserTokenReducer,
-    userTrips: setUserTripsReducer
+    userTrips: setUserTripsReducer,
+    distanceRides: setDistanceRidesReducer
 });

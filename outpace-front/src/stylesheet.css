@@ -257,6 +257,9 @@
     float: right !important;
 }
 
+.scrollContainer::-webkit-scrollbar {
+    display: none;
+}
 
 .column {
     float: left;

@@ -1,15 +1,16 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import {setUserProfile, setUserActivities, setUserClimbs, setUserId} from '../actions';
+import {setUsersummary, setUserId, setUserTrips, setDistanceRides} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import {
+    getRankedActivities,
 
     getStravaId,
-    getUserActivitiesFromDB
+    getUserActivitiesElevationFromDB, getUserTripsFromDB
 } from '../utils/functions';
 
 const { REACT_APP_CLIENT_ID } = process.env;
@@ -21,6 +22,8 @@ const scope = 'read,activity:read_all';
 const DBRedirect = (props) => {
     const location = useLocation();
     const navigate = useNavigate();
+    let userTrips;
+    let rankedRides;
 
     useEffect(() => {
         const fetch = async () => {
@@ -30,18 +33,11 @@ const DBRedirect = (props) => {
                     return navigate('/');
                 }
                 const userID = getStravaId;
-                //fecthing activities from our
-                const userClimbs = await getUserActivitiesFromDB(userID);
-
-                props.setUserClimbs(userClimbs);
                 props.setUserId(userID);
-                console.log(userClimbs)
-                if (userClimbs.length === 0) {
-                    window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
-                } else {
-                    // Once complete, go to display page
-                    navigate('/yourclimbs');
-                }
+                userTrips = await getUserTripsFromDB(userID);
+                rankedRides = await getRankedActivities(userID, "Ride", "distance");
+                console.log("rides", rankedRides);
+
                 
             } catch (error) {
                 console.log(props)
@@ -50,7 +46,17 @@ const DBRedirect = (props) => {
                 navigate('/redirect');
             }
         };
-        fetch();
+        fetch().then(r => {
+            if ((userTrips === undefined || userTrips.length === 0) &&
+                (rankedRides === undefined || rankedRides.length === 0)) {
+                window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
+            } else {
+                props.setUserTrips(userTrips);
+
+                props.setDistanceRides(rankedRides);
+                navigate('/dashboard');
+            }
+        });
     }, []);
 
     return (
@@ -63,6 +69,7 @@ const DBRedirect = (props) => {
 
 
 export default connect(null, {
-    setUserClimbs,
-    setUserId
+    setUserId,
+    setUserTrips,
+    setDistanceRides
 })(DBRedirect);

@@ -111,9 +111,10 @@ class TripCreate(TripBase):
     pass
 
 
-class Trip(TripBase):
+class Trip(BaseModel):
     id: int
-
+    name: str
+    activities: List[ActivityBase]
     class Config:
         from_attributes = True
 

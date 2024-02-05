@@ -12,6 +12,13 @@ export const setUserTrips = (data) => {
     };
 };
 
+export const setDistanceRides = (data) => {
+    return {
+        type: "SET_DISTANCE_RIDES",
+        payload: data,
+    };
+};
+
 export const setUserProfile = (data) => {
     return {
         type: "SET_USER_PROFILE",
@@ -19,9 +26,9 @@ export const setUserProfile = (data) => {
     };
 };
 
-export const setUserClimbs = (data) => {
+export const setUsersummary = (data) => {
     return {
-        type: "SET_USER_CLIMBS",
+        type: "SET_USER_SUMMARY",
         payload: data,
     };
 };

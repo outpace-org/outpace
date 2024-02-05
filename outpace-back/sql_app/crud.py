@@ -1,3 +1,5 @@
+from typing import Optional, List
+
 from sqlalchemy.orm import Session, joinedload
 from . import models
 from . import schemas
@@ -73,9 +75,13 @@ def create_activity(db: Session, activity: schemas.ActivityBase):
     return db_activity
 
 
-def get_activities_by_strava_id(db: Session, strava_id: int):
-    return db.query(models.Activity).filter(models.Activity.strava_id == strava_id).all()
-
+def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):
+    print("exclude", exclude)
+    query = db.query(models.Activity).filter(models.Activity.strava_id == strava_id)
+    if exclude:
+        query = query.filter(~models.Activity.id.in_(exclude))
+    activities = query.order_by(models.Activity.start_date).all()
+    return activities
 
 def get_last_activity_timestamp_by_strava_id(db: Session, strava_id: int):
     return (db.query(models.Activity.start_date)
@@ -135,8 +141,8 @@ def delete_trip(db: Session, trip_id: int):
 
 
 def get_trips_by_strava_id(db: Session, strava_id: int):
-    return db.query(models.Trip).options(joinedload(models.Trip.activities)).filter(
-        models.Trip.strava_id == strava_id).all()
+    return (db.query(models.Trip).join(models.Activity).filter(models.Trip.strava_id == strava_id)
+            .order_by(models.Activity.start_date).all())
 
 
 def create_dashboard(db: Session, strava_id: int):
@@ -148,6 +154,3 @@ def create_dashboard(db: Session, strava_id: int):
 
 def get_dashboard(db: Session, strava_id: int):
     return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
-
-
-

@@ -3,32 +3,21 @@ import {Map, Marker, GeoJson} from "pigeon-maps";
 import turfBbox from '@turf/bbox'
 import {featureCollection as turfFeatureCollection, point as turfPoint} from '@turf/helpers'
 import geoViewport from '@mapbox/geo-viewport'
+import {centerZoomFromLocations, mapboxProvider} from "../utils/functions";
 
 var polyline = require('@mapbox/polyline');
-const {REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
 
-function centerZoomFromLocations(locations, width = 564, height = 300) {
-    const points = locations.map(([lat, lng]) => turfPoint([lat, lng]));
-    const features = turfFeatureCollection(points)
-    const bounds = turfBbox(features)
-    const {center, zoom} = geoViewport.viewport(bounds, [width, height])
-    console.log("bounds", bounds, "center", center, "zoom", zoom)
-    return {
-        center,
-        zoom: Math.min(zoom, 13)
-    }
-}
 
-function mapboxProvider(x, y, z, dpr) {
-    return `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/${z}/${x}/${y}${dpr >= 2 ? '@2x' : ''}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
-}
 
-function Trip({trip}) {
+function Trip({trip, index}) {
+    console.log("index there is ", index)
     let coordinates = [];
     let totalDistance = 0;
     let totalElevationGain = 0;
-    trip.forEach(activity => {
+
+    trip.activities.forEach(activity => {
         try {
+            console.log("activitiy", activity.name)
             const activityCoordinates = polyline.decode(activity.summary_polyline).map(([lng, lat]) => [lat, lng]);
             coordinates = [...coordinates, ...activityCoordinates];
             totalDistance +=activity.distance;
@@ -37,21 +26,27 @@ function Trip({trip}) {
             console.error(error);
         }
     });
-    console.log("full coords", coordinates)
-    const {center, zoom} = centerZoomFromLocations(coordinates);
+    //console.log("full coords", coordinates)
+    const mapWidth = window.innerWidth * 0.6;
+    const mapHeight = window.innerHeight * 0.3;
+    const {center, zoom} = centerZoomFromLocations(coordinates, mapWidth, mapHeight);
     return (
 
-        <div className="row">
+        <div className="row" style={{padding: "10px"}}>
             <div className="column33">
+                <h2>Trip #{index + 1}</h2>
                 <p>Total Elevation Gain: {totalElevationGain}</p>
                 <p>Distance: {totalDistance}</p>
-                <p>Start Date: {trip[0].start_date}</p>
-                <p>Start Date: {trip[trip.length-1].start_date}</p>
+                <p>Start Date: {trip.activities[0].start_date}</p>
+                <p>End Date: {trip.activities[trip.activities.length - 1].start_date}</p>
             </div>
             <div className="column66">
-                <Map height={300} defaultCenter={[center[1], center[0]]} defaultZoom={zoom} provider={mapboxProvider}>
-
-                <GeoJson
+                <Map
+                    width={mapWidth}
+                    height={mapHeight}
+                    defaultCenter={[center[1], center[0]]} defaultZoom={zoom} provider={mapboxProvider}
+                >
+                    <GeoJson
                         data={{
                             type: 'FeatureCollection',
                             features: [{
@@ -77,7 +72,9 @@ function Trip({trip}) {
                 </Map>
             </div>
         </div>
+
     );
 }
+
 
 export default Trip;

@@ -1,11 +1,15 @@
 import axios from "axios";
 import Cookies from 'js-cookie';
+import {featureCollection as turfFeatureCollection, point as turfPoint} from "@turf/helpers";
+import turfBbox from "@turf/bbox";
+import geoViewport from "@mapbox/geo-viewport";
 
 
-const { REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL } = process.env;
+const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
 
-export function setStravaId(id){
-    Cookies.set('strava_id', id, { expires: 7 });
+
+export function setStravaId(id) {
+    Cookies.set('strava_id', id, {expires: 7});
 };
 
 export const getStravaId = Cookies.get('strava_id');
@@ -65,10 +69,10 @@ async function getRefreshTokenFromDB(stravaId) {
 async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
     try {
         const response = await axios.put(`${REACT_APP_HOST_URL}/refreshtoken/${stravaId}/AthleteSLAT/`, {
-                "token": newToken,
-                "read_activity": true,
-                "expires_at": expiresAt,
-                "new_refresh_token":newRefreshToken
+            "token": newToken,
+            "read_activity": true,
+            "expires_at": expiresAt,
+            "new_refresh_token": newRefreshToken
         });
         return response.data;
     } catch (error) {
@@ -135,7 +139,7 @@ export const getLastActivityTimestamp = async (userID) => {
 
 // export const fetchStravaAfterDate
 
-export const getUserActivitiesFromDB = async (userID) => {
+export const getUserActivitiesElevationFromDB = async (userID) => {
     try {
         const str = `${REACT_APP_HOST_URL}/activities/elevation/${userID}/30000`;
         console.log("Trying to fetch", str)
@@ -148,6 +152,25 @@ export const getUserActivitiesFromDB = async (userID) => {
         console.log(error);
     }
 };
+
+export const getUserActivitiesFromDB = async (userID, exclude = []) => {
+    try {
+        let str = `${REACT_APP_HOST_URL}/activities/${userID}`;
+        if (exclude.length > 0) {
+            const excludeParams = exclude.map(id => `exclude=${id}`).join('&');
+            str += `?${excludeParams}`;
+        }
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 export const getUserTripsFromDB = async (stravaId) => {
     try {
@@ -168,7 +191,7 @@ export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(
             `https://www.strava.com/api/v3/athletes/${userID}/stats`,
-            { headers: { Authorization: `Bearer ${accessToken}` } }
+            {headers: {Authorization: `Bearer ${accessToken}`}}
         );
         return response;
     } catch (error) {
@@ -180,7 +203,7 @@ export const getUserActivities = async (userID, accessToken) => {
     try {
         const response = await axios.get(
             `https://www.strava.com/api/v3/athletes/${userID}/activities?after=1577836800&per_page=200`,
-            { headers: { Authorization: `Bearer ${accessToken}` } }
+            {headers: {Authorization: `Bearer ${accessToken}`}}
         );
         return response;
     } catch (error) {
@@ -194,7 +217,7 @@ export const getUserActivitiesAfter = async (userID, accessToken, after) => {
         console.log(str)
         const response = await axios.get(str
             ,
-            { headers: { Authorization: `Bearer ${accessToken}` } }
+            {headers: {Authorization: `Bearer ${accessToken}`}}
         );
         return response;
     } catch (error) {
@@ -206,3 +229,41 @@ export const convertToMiles = (meters) => {
     return (meters * 0.621371) / 1000;
 };
 
+export async function fetchNewActivities(strava_id) {
+    const data = await getLastActivityTimestamp(strava_id);
+    let mTimestamp = data.last_date;
+    const expired = true;
+    let token = data.token;
+    if (expired) {
+        const newTokenData = await reloadToken(strava_id);
+        console.log("getting new token for ", strava_id);
+        token = newTokenData.access_token;
+    }
+    const activities = await getUserActivitiesAfter(strava_id, token, mTimestamp);
+    return activities;
+}
+
+export function mapboxProvider(x, y, z, dpr) {
+    return `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/${z}/${x}/${y}${dpr >= 2 ? '@2x' : ''}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+}
+
+export function centerZoomFromLocations(locations, width, height) {
+    const points = locations.map(([lat, lng]) => turfPoint([lat, lng]));
+    const features = turfFeatureCollection(points)
+    const bounds = turfBbox(features)
+    const {center, zoom} = geoViewport.viewport(bounds, [width, height])
+    console.log("bounds", bounds, "center", center, "zoom", zoom)
+    return {
+        center,
+        zoom: Math.min(zoom, 13)
+    }
+}
+
+export const getRankedActivities = async (stravaId, actType, criteria, limit = 10) => {
+    const response = await fetch(`${REACT_APP_HOST_URL}/activities/ranked/${stravaId}/${actType}/${criteria}?limit=${limit}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const activities = await response.json();
+    return activities;
+}

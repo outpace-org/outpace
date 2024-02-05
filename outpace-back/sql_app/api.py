@@ -1,6 +1,6 @@
 import datetime
-from typing import List, Dict, Tuple
-from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks
+from typing import List, Dict, Tuple, Optional
+from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func
 from . import crud
@@ -118,12 +118,11 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
 
 
 @app.get("/activities/{strava_id}", response_model=List[schemas.Activity])
-def read_activities(strava_id: int, db: Session = Depends(get_db)):
-    activities = crud.get_activities_by_strava_id(db, strava_id)
+def read_activities(strava_id: int, exclude: List[int] = Query(None), db: Session = Depends(get_db)):
+    activities = crud.get_activities_by_strava_id(db, strava_id, exclude)
     if activities is None:
         raise HTTPException(status_code=404, detail="Activities not found")
     return activities
-
 
 @app.get("/activities/elevation/{strava_id}/{elevation}", response_model=List[schemas.Activity])
 def get_activities_with_elevation(strava_id: int, elevation: int, db: Session = Depends(get_db)):
@@ -267,9 +266,11 @@ def delete_trip(trip_id: int, db: Session = Depends(get_db)):
     return {"message": "Trip deleted successfully"}
 
 
-@app.get("/trips/{strava_id}", response_model=List[schemas.TripBase])
+@app.get("/trips/{strava_id}", response_model=List[schemas.Trip])
 def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
     db_trips = crud.get_trips_by_strava_id(db, strava_id)
+    for trip in db_trips:
+        trip.activities.sort(key=lambda activity: activity.start_date)
     if not db_trips:
         raise HTTPException(status_code=404, detail="No trips found for this strava_id")
     return db_trips
@@ -281,6 +282,22 @@ def get_activity_count_by_country(strava_id: int, db: Session = Depends(get_db))
                .where(models.Activity.strava_id == strava_id).group_by(models.Activity.country).all())
     if not db_resp:
         raise HTTPException(status_code=404, detail="No heatmap found for this strava_id")
+    return db_resp
+
+
+@app.get("/activities/ranked/{strava_id}/{act_type}/{criteria}", response_model=List[schemas.ActivityBase])
+def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(10, ge=1), db: Session = Depends(get_db)):
+    if criteria == "total_elevation_gain":
+        ranking_criteria = models.Activity.total_elevation_gain
+    elif criteria == "distance":
+        ranking_criteria = models.Activity.distance
+    else:
+        raise HTTPException(status_code=420, detail="Invalid criteria")
+    db_resp = (db.query(models.Activity).filter(models.Activity.strava_id == strava_id,
+                                                models.Activity.type == act_type)
+               .order_by(ranking_criteria.desc()).limit(limit))
+    if not db_resp:
+        raise HTTPException(status_code=404, detail="No activities found for this strava_id")
     return db_resp
 
 
