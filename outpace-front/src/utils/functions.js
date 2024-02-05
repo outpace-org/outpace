@@ -187,6 +187,21 @@ export const getUserTripsFromDB = async (stravaId) => {
     }
 };
 
+export const fetchCountryValsFromDB = async (stravaId) => {
+    try {
+        const str = `${REACT_APP_HOST_URL}/activities/countries/${stravaId}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = response.json();
+        return await data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(
@@ -245,6 +260,10 @@ export async function fetchNewActivities(strava_id) {
 
 export function mapboxProvider(x, y, z, dpr) {
     return `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/${z}/${x}/${y}${dpr >= 2 ? '@2x' : ''}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+}
+
+export function mapboxProviderDark(x, y, z, dpr) {
+    return `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/${z}/${x}/${y}${dpr >= 2 ? '@2x' : ''}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
 }
 
 export function centerZoomFromLocations(locations, width, height) {

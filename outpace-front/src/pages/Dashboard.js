@@ -13,12 +13,13 @@ import SmallActivity from "../components/SmallActivity";
 import styled from 'styled-components';
 import { faPlus, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-
+import WorldMap from "../components/WorldMap";
 
 const Dashboard = (props) => {
     const trips = useSelector((state) => state.userTrips);
     const rankedDistanceRides = useSelector((state) => state.distanceRides)
     const strava_id = useSelector((state) => state.userId);
+    const countryVals = useSelector((state) => state.countryVals);
     const navigate = useNavigate();
     const scrollContainerRef = React.useRef(null);
 
@@ -154,6 +155,7 @@ const Dashboard = (props) => {
                     ))}
                 </Modal>
             </div>
+            <WorldMap data={countryVals}/>
 
         </div>
 

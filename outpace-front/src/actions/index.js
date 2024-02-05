@@ -19,6 +19,13 @@ export const setDistanceRides = (data) => {
     };
 };
 
+export const setCountryVals = (data) => {
+    return {
+        type: "SET_COUNTRY_VALS",
+        payload: data,
+    };
+};
+
 export const setUserProfile = (data) => {
     return {
         type: "SET_USER_PROFILE",

@@ -1,12 +1,13 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import {setUsersummary, setUserId, setUserTrips, setDistanceRides} from '../actions';
+import {setUsersummary, setUserId, setUserTrips, setDistanceRides, setCountryVals} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import {
+    fetchCountryValsFromDB,
     getRankedActivities,
 
     getStravaId,
@@ -24,6 +25,7 @@ const DBRedirect = (props) => {
     const navigate = useNavigate();
     let userTrips;
     let rankedRides;
+    let countryVals;
 
     useEffect(() => {
         const fetch = async () => {
@@ -36,6 +38,7 @@ const DBRedirect = (props) => {
                 props.setUserId(userID);
                 userTrips = await getUserTripsFromDB(userID);
                 rankedRides = await getRankedActivities(userID, "Ride", "distance");
+                countryVals = await fetchCountryValsFromDB(userID);
                 console.log("rides", rankedRides);
 
                 
@@ -47,13 +50,12 @@ const DBRedirect = (props) => {
             }
         };
         fetch().then(r => {
-            if ((userTrips === undefined || userTrips.length === 0) &&
-                (rankedRides === undefined || rankedRides.length === 0)) {
+            if (rankedRides === undefined || rankedRides.length === 0) {
                 window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
             } else {
                 props.setUserTrips(userTrips);
-
                 props.setDistanceRides(rankedRides);
+                props.setCountryVals(countryVals);
                 navigate('/dashboard');
             }
         });
@@ -71,5 +73,6 @@ const DBRedirect = (props) => {
 export default connect(null, {
     setUserId,
     setUserTrips,
-    setDistanceRides
+    setDistanceRides,
+    setCountryVals
 })(DBRedirect);

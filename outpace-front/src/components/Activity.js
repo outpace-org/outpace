@@ -5,7 +5,7 @@ import {featureCollection as turfFeatureCollection, point as turfPoint} from '@t
 import geoViewport from '@mapbox/geo-viewport'
 import {centerZoomFromLocations, mapboxProvider} from "../utils/functions";
 
-var polyline = require('@mapbox/polyline');
+const polyline = require('@mapbox/polyline');
 
 
 function Activity({activity}) {

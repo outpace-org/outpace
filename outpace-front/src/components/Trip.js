@@ -3,10 +3,9 @@ import {Map, Marker, GeoJson} from "pigeon-maps";
 import turfBbox from '@turf/bbox'
 import {featureCollection as turfFeatureCollection, point as turfPoint} from '@turf/helpers'
 import geoViewport from '@mapbox/geo-viewport'
-import {centerZoomFromLocations, mapboxProvider} from "../utils/functions";
+import {centerZoomFromLocations, centerZoomFromLocationsTrip, mapboxProvider} from "../utils/functions";
 
 var polyline = require('@mapbox/polyline');
-
 
 
 function Trip({trip, index}) {
@@ -20,7 +19,7 @@ function Trip({trip, index}) {
             console.log("activitiy", activity.name)
             const activityCoordinates = polyline.decode(activity.summary_polyline).map(([lng, lat]) => [lat, lng]);
             coordinates = [...coordinates, ...activityCoordinates];
-            totalDistance +=activity.distance;
+            totalDistance += activity.distance;
             totalElevationGain += activity.total_elevation_gain;
         } catch (error) {
             console.error(error);
@@ -44,7 +43,11 @@ function Trip({trip, index}) {
                 <Map
                     width={mapWidth}
                     height={mapHeight}
-                    defaultCenter={[center[1], center[0]]} defaultZoom={zoom} provider={mapboxProvider}
+                    defaultCenter={[center[1], center[0]]}
+                    defaultZoom={zoom}
+                    provider={mapboxProvider}
+                    twoFingerDrag={false} // Disable two finger drag (mobile)
+                    mouseEvents={false} // Disable mouse events (desktop)
                 >
                     <GeoJson
                         data={{
