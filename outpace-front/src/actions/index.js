@@ -4,6 +4,12 @@ export const setUserActivities = (data) => {
         payload: data,
     };
 };
+export const setTripActivities = (data) => {
+    return {
+        type: "SET_TRIP_ACTIVITIES",
+        payload: data,
+    };
+};
 
 export const setUserTrips = (data) => {
     return {

@@ -6,8 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const TripView = (props) => {
-    const activities = useSelector((state) => state.userActivities);
-    const strava_id = useSelector((state) => state.userId);
+    const activities = useSelector((state) => state.tripActivities);
     const navigate = useNavigate();
 
     const handleBackClick = () => {

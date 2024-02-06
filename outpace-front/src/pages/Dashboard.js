@@ -7,7 +7,7 @@ import {
     getUserActivitiesFromDB
 } from "../utils/functions";
 import {useNavigate} from "react-router-dom";
-import {setUserActivities, setUserTrips} from "../actions";
+import {setTripActivities, setUserActivities, setUserTrips} from "../actions";
 import Trip from "../components/Trip";
 import SmallActivity from "../components/SmallActivity";
 import styled from 'styled-components';
@@ -47,7 +47,7 @@ const Dashboard = (props) => {
     };
 
     const handleTripClick = (index) => {
-        props.setUserActivities(trips[index].activities);
+        props.setTripActivities(trips[index].activities);
         navigate("/trip_view")
     };
 
@@ -156,7 +156,7 @@ const Dashboard = (props) => {
                     ))}
                 </Modal>
             </div>
-            <WorldMap data={countryVals} activities={userActivities}/>
+            <WorldMap activities={userActivities}/>
 
         </div>
 
@@ -166,7 +166,8 @@ const Dashboard = (props) => {
 
 const mapDispatchToProps = {
     setUserTrips,
-    setUserActivities
+    setUserActivities,
+    setTripActivities
 };
 
 export default connect(null, mapDispatchToProps)(Dashboard);

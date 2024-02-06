@@ -35,9 +35,9 @@ function includes(arr, val) {
         return -1;
 }
 
-function WorldMap({data, activities}) {
-    const mapWidth = window.innerWidth * 0.7;
-    const mapHeight = mapWidth/1.65;
+function WorldMap({activities}) {
+    const mapWidth = window.innerWidth * .8;
+    const mapHeight = mapWidth/1.5;
     let geos = [];
     let combinedCoords = [];
     let counts = [];
