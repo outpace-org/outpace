@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import {setUsersummary, setUserId, setUserTrips, setDistanceRides, setCountryVals} from '../actions';
+import {setUsersummary, setUserId, setUserTrips, setDistanceRides, setCountryVals, setUserActivities} from '../actions';
 import Loading from '../components/Loading';
 import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import {
     getRankedActivities,
 
     getStravaId,
-    getUserActivitiesElevationFromDB, getUserTripsFromDB
+    getUserActivitiesElevationFromDB, getUserActivitiesFromDB, getUserTripsFromDB
 } from '../utils/functions';
 
 const { REACT_APP_CLIENT_ID } = process.env;
@@ -26,6 +26,7 @@ const DBRedirect = (props) => {
     let userTrips;
     let rankedRides;
     let countryVals;
+    let activities;
 
     useEffect(() => {
         const fetch = async () => {
@@ -39,6 +40,8 @@ const DBRedirect = (props) => {
                 userTrips = await getUserTripsFromDB(userID);
                 rankedRides = await getRankedActivities(userID, "Ride", "distance");
                 countryVals = await fetchCountryValsFromDB(userID);
+                activities = await getUserActivitiesFromDB(userID);
+
                 console.log("rides", rankedRides);
 
                 
@@ -56,6 +59,7 @@ const DBRedirect = (props) => {
                 props.setUserTrips(userTrips);
                 props.setDistanceRides(rankedRides);
                 props.setCountryVals(countryVals);
+                props.setUserActivities(activities);
                 navigate('/dashboard');
             }
         });
@@ -74,5 +78,6 @@ export default connect(null, {
     setUserId,
     setUserTrips,
     setDistanceRides,
-    setCountryVals
+    setCountryVals,
+    setUserActivities
 })(DBRedirect);

@@ -3,6 +3,9 @@ import Cookies from 'js-cookie';
 import {featureCollection as turfFeatureCollection, point as turfPoint} from "@turf/helpers";
 import turfBbox from "@turf/bbox";
 import geoViewport from "@mapbox/geo-viewport";
+import geoJson from "world-geojson";
+import getMap from "@geo-maps/countries-maritime-10m";
+import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 
 
 const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
@@ -286,3 +289,39 @@ export const getRankedActivities = async (stravaId, actType, criteria, limit = 1
     const activities = await response.json();
     return activities;
 }
+
+export function getGeoJsonFromCountry(country){
+    return country === "United States" ?
+        geoJson.forCountry("USA") : geoJson.forCountry(country)
+}
+
+let worldLookup = null;
+export function getGeoJsonContainingLatLng(lat, lng) {
+    if (worldLookup === null) {
+        const map = getMap();
+        worldLookup = new GeoJsonPolygonLookup(map);
+    }
+
+    const countries = worldLookup.getContainers({type: 'Point', coordinates: [lng, lat]});
+    const feats = countries.features;
+    return {
+        type: 'FeatureCollection',
+        features: feats};
+}
+
+export function getCodes(lat, lng) {
+    if (worldLookup === null) {
+        const map = getMap();
+        worldLookup = new GeoJsonPolygonLookup(map);
+    }
+
+    const countries = worldLookup.getContainers({type: 'Point', coordinates: [lng, lat]});
+
+    if (countries.features.length > 0) {
+        return [...new Set(countries.features.map(f => f.properties.A3))];
+    }
+    return [];
+}
+
+
+

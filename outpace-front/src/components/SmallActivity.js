@@ -25,7 +25,7 @@ function SmallActivity({activity, crit}) {
         <div>
             <h3>{activity.name}: {activity[crit]}</h3>
             <Map width={mapWidth} height={mapHeight} defaultCenter={[center[1], center[0]]} defaultZoom={zoom}
-                 provider={mapboxProvider}>
+                 provider={mapboxProvider} twoFingerDrag={false} mouseEvents={false}>
                 <GeoJson
                     data={{
                         type: 'FeatureCollection',

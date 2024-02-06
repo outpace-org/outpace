@@ -20,6 +20,7 @@ const Dashboard = (props) => {
     const rankedDistanceRides = useSelector((state) => state.distanceRides)
     const strava_id = useSelector((state) => state.userId);
     const countryVals = useSelector((state) => state.countryVals);
+    const userActivities = useSelector((state) => state.userActivities);
     const navigate = useNavigate();
     const scrollContainerRef = React.useRef(null);
 
@@ -155,7 +156,7 @@ const Dashboard = (props) => {
                     ))}
                 </Modal>
             </div>
-            <WorldMap data={countryVals}/>
+            <WorldMap data={countryVals} activities={userActivities}/>
 
         </div>
 
