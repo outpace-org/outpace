@@ -1,31 +1,37 @@
 import React, {useEffect, useState} from "react";
 import {Map, GeoJson} from "pigeon-maps";
-import {feature} from '@turf/helpers'
 import {
-    centerZoomFromLocations, getCodes,
-    getGeoJsonContainingLatLng, includes,
+    centerZoomFromLocations, concatCoords, getCodes, getGeoJsonContainingLatLng, includes, isPointInGeoJson,
     mapboxProvider
 } from "../utils/functions";
 import {connect, useSelector} from "react-redux";
-import { faZoomIn } from '@fortawesome/free-solid-svg-icons';
 import {setZoomeds} from "../actions";
-
-let _ = require('lodash');
 
 
 var polyline = require('@mapbox/polyline');
 
-function concatCoords(geo) {
-    let coords = [];
-    geo.features.forEach(feature => {
-        coords = [...coords, ...feature.geometry.coordinates];
-    })
-    return coords[0];
+function useGeoJson() {
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        fetch('quebec.geojson')
+            .then(response => response.json())
+            .then(jsonData => setData(jsonData))
+            .catch(error => console.error(error));
+    }, []);
+
+    return data;
 }
 
+
 function Trip({trip, index, onButtonClick}) {
-    const [update, setUpdate] = useState(0);
+    const geoJson = useGeoJson();
     const zoomeds = useSelector((state) => state.zoomeds);
+    const [update, setUpdate] = useState(0);
+    // Don't try to use geoJson until it's defined
+    if (!geoJson) {
+        return <div>Loading...</div>;
+    }
     const zoomed = zoomeds[index];
     console.log("zoomed", zoomed)
     const theClass = zoomed ? "fas fa-search-minus" : "fas fa-search-plus";
@@ -43,8 +49,19 @@ function Trip({trip, index, onButtonClick}) {
             totalElevationGain += activity.total_elevation_gain;
             const start = activityCoordinates[0];
             const end = activityCoordinates[activityCoordinates.length - 1];
-            const geoStart = getGeoJsonContainingLatLng(start[1], start[0])
-            const geoEnd = getGeoJsonContainingLatLng(end[1], end[0])
+            let geoStart;
+            let geoEnd;
+            if (isPointInGeoJson(start[1], start[0], geoJson))
+                geoStart = geoJson;
+            else {
+                geoStart = getGeoJsonContainingLatLng(start[1], start[0])
+            }
+            if (isPointInGeoJson(end[1], end[0], geoJson)){
+                geoEnd = geoJson;
+            }
+            else{
+                geoEnd = getGeoJsonContainingLatLng(end[1], end[0]);
+            }
 
             if (!includes(geos, geoStart)) {
                 geos.push(geoStart);
@@ -66,7 +83,7 @@ function Trip({trip, index, onButtonClick}) {
     const handleToggleClick = (event) => {
         event.stopPropagation();
         onButtonClick(index);
-        setUpdate(update+1);
+        setUpdate(update + 1);
     };
     return (
         <div className="row" style={{padding: "10px"}}>

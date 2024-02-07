@@ -7,7 +7,7 @@ import geoJson from "world-geojson";
 import getMap from "@geo-maps/countries-maritime-10m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
-import {useEffect, useState} from "react";
+import * as turf from "@turf/turf";
 
 
 const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
@@ -350,6 +350,45 @@ export function getCodes(lat, lng) {
         return [...new Set(countries.features.map(f => f.properties.A3))];
     }
     return [];
+}
+
+export function isPointInGeoJson(lat, lng, geoJson) {
+    const point = turf.point([lng, lat]);
+
+    let isInside = false;
+
+    turf.geomEach(geoJson, (geometry) => {
+        if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+            if (turf.booleanPointInPolygon(point, geometry)) {
+                isInside = true;
+                return false; // This will stop the iteration
+            }
+        }
+    });
+    return isInside;
+
+}
+
+function flattenCoordinates(coords) {
+    if (!Array.isArray(coords)) {
+        return [coords];
+    }
+    // If the first element is a number, assume this is a [lat, lng] pair
+    if (typeof coords[0] === 'number') {
+        return [coords];
+    }
+    return coords.reduce((flattened, c) => {
+        return flattened.concat(flattenCoordinates(c));
+    }, []);
+}
+
+export function concatCoords(geo) {
+    let coords = [];
+    geo.features.forEach(feature => {
+        coords = [...coords, ...flattenCoordinates(feature.geometry.coordinates)];
+    });
+    return coords;
+
 }
 
 
