@@ -75,13 +75,38 @@ def create_activity(db: Session, activity: schemas.ActivityBase):
     return db_activity
 
 
+def create_dashboard(db: Session, strava_id: int):
+    db_dash = models.Dashboard(strava_id=strava_id)
+    db.add(db_dash)
+    db.commit()
+    db.refresh(db_dash)
+    return db_dash
+
+
+def update_dashboard(db: Session, dashboard_id: int, pending: bool):
+    db_dash = db.query(models.Dashboard).filter(models.Dashboard.id == dashboard_id).first()
+    if db_dash is None:
+        return None
+    db_dash.pending = pending
+    db.commit()
+    return db_dash
+
+
+def get_dashboard(db: Session, strava_id: int):
+    return db.query(models.Dashboard).filter(models.Dashboard.id == strava_id).first()
+
+
 def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):
-    print("exclude", exclude)
     query = db.query(models.Activity).filter(models.Activity.strava_id == strava_id)
     if exclude:
         query = query.filter(~models.Activity.id.in_(exclude))
     activities = query.order_by(models.Activity.start_date).all()
     return activities
+
+
+def get_pinned_activities_by_strava_id(db: Session, strava_id: int):
+    return db.query(models.Activity).filter(models.Activity.strava_id == strava_id, models.Activity.pinned)
+
 
 def get_last_activity_timestamp_by_strava_id(db: Session, strava_id: int):
     return (db.query(models.Activity.start_date)
@@ -144,13 +169,3 @@ def get_trips_by_strava_id(db: Session, strava_id: int):
     return (db.query(models.Trip).join(models.Activity).filter(models.Trip.strava_id == strava_id)
             .order_by(models.Activity.start_date).all())
 
-
-def create_dashboard(db: Session, strava_id: int):
-    db_dashboard = models.Dashboard(strava_id=strava_id)
-    db.add(db_dashboard)
-    db.commit()
-    return db_dashboard
-
-
-def get_dashboard(db: Session, strava_id: int):
-    return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()

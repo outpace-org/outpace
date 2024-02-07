@@ -67,6 +67,7 @@ class ActivityBase(BaseModel):
     type: str
     summary_polyline: str
     country: Optional[str]
+    pinned: Optional[bool]
 
 
 class ActivityInfo(BaseModel):
@@ -115,6 +116,10 @@ class Trip(BaseModel):
     id: int
     name: str
     activities: List[ActivityBase]
+
     class Config:
         from_attributes = True
 
+
+class DashboardBase(BaseModel):
+    strava_id: int

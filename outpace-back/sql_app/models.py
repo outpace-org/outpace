@@ -44,6 +44,7 @@ class Activity(Base):
     summary_polyline = Column(String)
     country = Column(String, default="France")
     trip = relationship("Trip", back_populates="activities")
+    pinned = Column(Boolean, default=False)
 
 
 class Trip(Base):
@@ -54,8 +55,10 @@ class Trip(Base):
     name = Column(String)
     activities = relationship("Activity", back_populates="trip")
 
+
 class Dashboard(Base):
     __tablename__ = "dashboards"
 
     id = Column(BigInteger, primary_key=True, index=True)
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
+    pending = Column(Boolean, default=True)

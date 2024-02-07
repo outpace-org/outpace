@@ -109,7 +109,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
                                                 start_latlng=activity.start_latlng, end_latlng=activity.end_latlng,
                                                 start_date=activity.start_date,
                                                 type=activity.type, summary_polyline=activity.map.summary_polyline,
-                                                country=None)
+                                                country=None, pinned=None)
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()
@@ -122,6 +122,13 @@ def read_activities(strava_id: int, exclude: List[int] = Query(None), db: Sessio
     activities = crud.get_activities_by_strava_id(db, strava_id, exclude)
     if activities is None:
         raise HTTPException(status_code=404, detail="Activities not found")
+    return activities
+
+@app.get("/activities/pinned/{strava_id}", response_model=List[schemas.Activity])
+def read_pinned_activities(strava_id: int, db: Session = Depends(get_db)):
+    activities = crud.get_pinned_activities_by_strava_id(db, strava_id)
+    if activities is None:
+        raise HTTPException(status_code=404, detail="Pinned activities not found")
     return activities
 
 @app.get("/activities/elevation/{strava_id}/{elevation}", response_model=List[schemas.Activity])
@@ -198,7 +205,11 @@ def find_hiking_trips(activities):
 
 def process_activities(activities, db: Session = Depends(get_db)):
     strava_id = activities[0].strava_id
-    print("creating trips")
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        db_dash = crud.create_dashboard(db, strava_id)
+    else:
+        crud.update_dashboard(db, db_dash.id, True)
     # handling the creating of trips
     trips = find_bike_trips(activities) + find_hiking_trips(activities)
 
@@ -206,9 +217,6 @@ def process_activities(activities, db: Session = Depends(get_db)):
         crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, name=trip[0].name + " " + trip[-1].name,
                                                 activities_id=[act.id for act in trip]))
 
-    print("trips created")
-
-    # changing countries
     for activity in activities:
         location = geolocator.reverse(f"{activity.start_latlng[0]},{activity.start_latlng[1]}", language='en')
         country = location.raw['address']['country']
@@ -216,7 +224,15 @@ def process_activities(activities, db: Session = Depends(get_db)):
         activity.country = country
         db.add(activity)  # ensure the object is in 'pending' state
     db.commit()
+    crud.update_dashboard(db, db_dash.id, False)
 
+
+@app.get("/dashboard/{strava_id}")
+def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    return db_dash
 
 @app.get("/activities/last_date/{strava_id}", response_model=ActivityInfo)
 def get_last_date(strava_id: int, db: Session = Depends(get_db)):

@@ -7,7 +7,7 @@ import {
     getUserActivitiesFromDB
 } from "../utils/functions";
 import {useNavigate} from "react-router-dom";
-import {setTripActivities, setUserActivities, setUserTrips} from "../actions";
+import {setTripActivities, setUserActivities, setUserTrips, setZoomeds} from "../actions";
 import Trip from "../components/Trip";
 import SmallActivity from "../components/SmallActivity";
 import styled from 'styled-components';
@@ -15,11 +15,14 @@ import { faPlus, faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-i
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import WorldMap from "../components/WorldMap";
 
+
+
 const Dashboard = (props) => {
     const trips = useSelector((state) => state.userTrips);
+    let zoomeds = new Array(trips.length).fill(false);
+    props.setZoomeds(zoomeds);
     const rankedDistanceRides = useSelector((state) => state.distanceRides)
     const strava_id = useSelector((state) => state.userId);
-    const countryVals = useSelector((state) => state.countryVals);
     const userActivities = useSelector((state) => state.userActivities);
     const navigate = useNavigate();
     const scrollContainerRef = React.useRef(null);
@@ -45,6 +48,12 @@ const Dashboard = (props) => {
             navigate("/redirectDB");
         });
     };
+
+    const handleTripToggleButtonClick = (index) => {
+        zoomeds[index] = !zoomeds[index];
+        props.setZoomeds(zoomeds);
+    };
+
 
     const handleTripClick = (index) => {
         props.setTripActivities(trips[index].activities);
@@ -116,7 +125,7 @@ const Dashboard = (props) => {
                      onMouseOut={e => e.currentTarget.style.backgroundColor = 'white'}
                 >
                     {index === 0 && <hr style={{margin: '0'}}/>}
-                    <Trip trip={trip} index={index}/>
+                    <Trip key={index + zoomeds[index]} trip={trip} index={index} zoomed={zoomeds[index]} onButtonClick={handleTripToggleButtonClick} />
                     <hr style={{margin: '0'}}/>
 
                 </div>
@@ -167,6 +176,7 @@ const Dashboard = (props) => {
 const mapDispatchToProps = {
     setUserTrips,
     setUserActivities,
+    setZoomeds,
     setTripActivities
 };
 

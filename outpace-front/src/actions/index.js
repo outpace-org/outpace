@@ -18,6 +18,13 @@ export const setUserTrips = (data) => {
     };
 };
 
+export const setZoomeds = (data) => {
+    return {
+        type: "SET_ZOOMEDS",
+        payload: data,
+    };
+};
+
 export const setDistanceRides = (data) => {
     return {
         type: "SET_DISTANCE_RIDES",

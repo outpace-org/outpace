@@ -19,6 +19,15 @@ const setUserTripsReducer = (userTrips = null, action) => {
     }
 };
 
+const setZoomedsReducer = (zoomeds = null, action) => {
+    switch (action.type) {
+        case "SET_ZOOMEDS":
+            return action.payload;
+        default:
+            return zoomeds;
+    }
+};
+
 const setUserActivitiesReducer = (userActivities = null, action) => {
     switch (action.type) {
         case "SET_USER_ACTIVITIES":
@@ -126,5 +135,6 @@ export default combineReducers({
     userTrips: setUserTripsReducer,
     distanceRides: setDistanceRidesReducer,
     countryVals: setCountryValsReducer,
+    zoomeds: setZoomedsReducer,
     tripActivities: setTripActivitiesReducer
 });

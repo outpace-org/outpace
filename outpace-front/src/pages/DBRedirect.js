@@ -54,8 +54,10 @@ const DBRedirect = (props) => {
         };
         fetch().then(r => {
             if (rankedRides === undefined || rankedRides.length === 0) {
+                console.log("here")
                 window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
             } else {
+                console.log("there")
                 props.setUserTrips(userTrips);
                 props.setDistanceRides(rankedRides);
                 props.setCountryVals(countryVals);

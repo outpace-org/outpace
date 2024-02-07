@@ -6,6 +6,8 @@ import geoViewport from "@mapbox/geo-viewport";
 import geoJson from "world-geojson";
 import getMap from "@geo-maps/countries-maritime-10m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
+import _ from "lodash";
+import {useEffect, useState} from "react";
 
 
 const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
@@ -174,6 +176,20 @@ export const getUserActivitiesFromDB = async (userID, exclude = []) => {
     }
 };
 
+export const getUserDashboardFromDB = async (userID) => {
+    try {
+        let str = `${REACT_APP_HOST_URL}/dashboard/${userID}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 
 export const getUserTripsFromDB = async (stravaId) => {
     try {
@@ -272,7 +288,9 @@ export function mapboxProviderDark(x, y, z, dpr) {
 export function centerZoomFromLocations(locations, width, height) {
     const points = locations.map(([lat, lng]) => turfPoint([lat, lng]));
     const features = turfFeatureCollection(points)
-    const bounds = turfBbox(features)
+    let bounds = turfBbox(features)
+    bounds[1] = Math.min(60, bounds[1]);
+    bounds[3] = Math.min(60, bounds[3]);
     const {center, zoom} = geoViewport.viewport(bounds, [width, height])
     console.log("bounds", bounds, "center", center, "zoom", zoom)
     return {
@@ -290,6 +308,16 @@ export const getRankedActivities = async (stravaId, actType, criteria, limit = 1
     return activities;
 }
 
+export function includes(arr, val) {
+    let b = false;
+    arr.forEach(v => {
+        if (_.isEqual(val, v)) {
+            b = true;
+        }
+    })
+    return b;
+}
+
 export function getGeoJsonFromCountry(country){
     return country === "United States" ?
         geoJson.forCountry("USA") : geoJson.forCountry(country)
@@ -303,7 +331,8 @@ export function getGeoJsonContainingLatLng(lat, lng) {
     }
 
     const countries = worldLookup.getContainers({type: 'Point', coordinates: [lng, lat]});
-    const feats = countries.features;
+    let feats = countries.features;
+    let codes = [...new Set(countries.features.map(f => f.properties.A3))];
     return {
         type: 'FeatureCollection',
         features: feats};
