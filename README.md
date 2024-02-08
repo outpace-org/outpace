@@ -19,6 +19,7 @@ And the one in `outpace-front`:
 REACT_APP_CLIENT_ID="your_strava_client_id"
 REACT_APP_CLIENT_SECRET="your_strava_secret"
 REACT_APP_HOST_URL="http://localhost:8000"
+REACT_APP_MAPBOX_ACCESS_TOKEN="your_mapbox_token"
 ```
 
 ## Run with docker
