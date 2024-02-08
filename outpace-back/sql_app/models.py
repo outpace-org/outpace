@@ -62,4 +62,4 @@ class Dashboard(Base):
 
     id = Column(BigInteger, primary_key=True, index=True)
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
-    pending = Column(Boolean, default=True)
+    ready = Column(Boolean, default=False)

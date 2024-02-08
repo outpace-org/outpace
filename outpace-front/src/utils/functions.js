@@ -423,5 +423,9 @@ export const nameTrip = (trip) => {
     return `Trip from ${trip.start} to ${trip.end}`
 }
 
+export const shortenText = (str, nb) => {
+    return str.length <= nb ? str : `${str.substring(0, nb)}...`;
+}
+
 
 

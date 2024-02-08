@@ -84,11 +84,11 @@ def create_dashboard(db: Session, strava_id: int):
     return db_dash
 
 
-def update_dashboard(db: Session, dashboard_id: int, pending: bool):
+def update_dashboard(db: Session, dashboard_id: int, ready: bool):
     db_dash = db.query(models.Dashboard).filter(models.Dashboard.id == dashboard_id).first()
     if db_dash is None:
         return None
-    db_dash.pending = pending
+    db_dash.ready = ready
     db.commit()
     return db_dash
 

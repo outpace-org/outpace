@@ -65,7 +65,7 @@ function WorldMap({activities}) {
     const {center, zoom} = centerZoomFromLocations(combinedCoords, mapWidth, mapHeight);
     return (
         <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '3em'}}>
-            <h3>Your heatmap</h3>
+            <h1>Your heatmap</h1>
             <Map width={mapWidth}
                  height={mapHeight}
                  defaultCenter={[center[1], center[0]]}
