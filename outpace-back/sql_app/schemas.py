@@ -104,7 +104,8 @@ class Activity(ActivityBase):
 
 class TripBase(BaseModel):
     strava_id: int
-    name: str
+    start: str
+    end: str
     activities_id: List[int]
 
 
@@ -114,7 +115,8 @@ class TripCreate(TripBase):
 
 class Trip(BaseModel):
     id: int
-    name: str
+    start: str
+    end: str
     activities: List[ActivityBase]
 
     class Config:

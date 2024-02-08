@@ -52,7 +52,8 @@ class Trip(Base):
 
     id = Column(BigInteger, primary_key=True, index=True)
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
-    name = Column(String)
+    start = Column(String)
+    end = Column(String)
     activities = relationship("Activity", back_populates="trip")
 
 
