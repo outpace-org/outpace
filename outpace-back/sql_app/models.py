@@ -42,7 +42,6 @@ class Activity(Base):
     start_date = Column(DateTime)
     type = Column(String)
     summary_polyline = Column(String)
-    country = Column(String, default="France")
     trip = relationship("Trip", back_populates="activities")
     pinned = Column(Boolean, default=False)
 
