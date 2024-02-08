@@ -16,6 +16,8 @@ import {faPlus, faArrowLeft, faArrowRight, faRunning, faBicycle} from '@fortawes
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faBan } from '@fortawesome/free-solid-svg-icons';
 import WorldMap from "../components/WorldMap";
+import {ToastContainer, toast, Slide} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const LeftArrowButton = styled.button`
@@ -106,7 +108,18 @@ const Dashboard = (props) => {
                 props.setUsersummary(activities.data);
                 navigate("/summary");
             } else {
-                console.log("No new activities")
+                console.log("No new activities");
+                toast.info('No new activities to add', {
+                    position: "bottom-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Slide,
+                });
             }
         });
     };
@@ -260,6 +273,18 @@ const Dashboard = (props) => {
             <button onClick={handleButtonClick} style={{marginLeft: '1em', display: 'block', margin: '2em auto'}}>
                 Fetch new activities from Strava <FontAwesomeIcon icon={faStrava}/>
             </button>
+            <ToastContainer
+                position="bottom-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </div>
 
     )

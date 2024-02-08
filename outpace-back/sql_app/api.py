@@ -211,7 +211,7 @@ def process_activities(activities, db: Session = Depends(get_db)):
     if db_dash is None:
         db_dash = crud.create_dashboard(db, strava_id)
     else:
-        crud.update_dashboard(db, db_dash.id, True)
+        crud.update_dashboard(db, db_dash.id, False)
     # handling the creating of trips
     trips = find_bike_trips(activities) + find_hiking_trips(activities)
 
@@ -236,7 +236,7 @@ def process_activities(activities, db: Session = Depends(get_db)):
         activity.country = country
         db.add(activity)  # ensure the object is in 'pending' state
     db.commit()
-    crud.update_dashboard(db, db_dash.id, False)
+    crud.update_dashboard(db, db_dash.id, True)
 
 
 @app.get("/dashboard/{strava_id}")
@@ -306,7 +306,6 @@ def delete_trip(trip_id: int, db: Session = Depends(get_db)):
 @app.get("/trips/{strava_id}", response_model=List[schemas.Trip])
 def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
     db_trips = crud.get_trips_by_strava_id(db, strava_id)
-    print("la longueur", len(db_trips))
     for trip in db_trips:
         trip.activities.sort(key=lambda activity: activity.start_date)
     if not db_trips:
@@ -343,4 +342,4 @@ def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(1
 @app.get("/dashboard/{strava_id}", response_model=bool)
 def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
     db_dash = crud.get_dashboard(db, strava_id)
-    return db_dash is not None
+    return db_dash

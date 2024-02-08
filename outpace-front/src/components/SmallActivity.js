@@ -1,6 +1,6 @@
 import React from "react";
 import {Map, GeoJson} from "pigeon-maps";
-import {centerZoomFromLocations, convertToKm, formatNumber, mapboxProvider} from "../utils/functions";
+import {centerZoomFromLocations, convertToKm, formatNumber, mapboxProvider, shortenText} from "../utils/functions";
 import {faRunning, faBicycle, faLevelUpAlt} from '@fortawesome/free-solid-svg-icons';
 import {faStrava} from "@fortawesome/free-brands-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -18,29 +18,30 @@ function SmallActivity({activity, crit}) {
         coordinates = polyline.decode(activity.map.summary_polyline).map(([lng, lat]) => [lat, lng]);
     }
     const mid = coordinates[parseInt(coordinates.length / 2)];
-    const mapWidth = window.innerWidth * 0.3;
-    const mapHeight = window.innerHeight * 0.2;
+    const mapWidth = window.innerWidth * 0.31;
+    const mapHeight = window.innerHeight * 0.24;
     const {center, zoom} = centerZoomFromLocations(coordinates, mapWidth, mapHeight);
     const logo = activity.type === "Run" ? faRunning : faBicycle;
+    const name = shortenText(activity.name, 30);
     let displayValue;
     if (crit) {
         displayValue = crit === "distance" ? `${formatNumber(convertToKm(activity[crit]))}km` : `${formatNumber(activity[crit])}m`;
     }
     console.log("mid", mid, "center", center)
     return (<div>
-            <h5>
-                <FontAwesomeIcon icon={logo} style={{marginRight: '.5em'}}/>
-                {crit ? (<>
-                        {activity.name}: <span style={{fontSize: '0.8em'}}>
+        <h5>
+            <FontAwesomeIcon icon={logo} style={{marginRight: '.5em'}}/>
+            {crit ? (<>
+                {name}: <span style={{fontSize: '0.8em'}}>
     {displayValue}
-                        {crit === "total_elevation_gain" &&
-                            <FontAwesomeIcon icon={faLevelUpAlt} style={{marginLeft: '.5em'}}/>}
-</span>
+                {crit === "total_elevation_gain" && <FontAwesomeIcon icon={faLevelUpAlt} style={{marginLeft: '.5em'}}/>}
+                                </span>
 
-                    </>) : (activity.name)}
-            </h5>            <Map width={mapWidth} height={mapHeight} defaultCenter={[center[1], center[0]]}
-                                  defaultZoom={zoom}
-                                  provider={mapboxProvider} twoFingerDrag={false} mouseEvents={false}>
+            </>) : (name)}
+        </h5>
+        <Map width={mapWidth} height={mapHeight} defaultCenter={[center[1], center[0]]}
+             defaultZoom={zoom}
+             provider={mapboxProvider} twoFingerDrag={false} mouseEvents={false}>
             <GeoJson
                 data={{
                     type: 'FeatureCollection', features: [{
@@ -59,7 +60,7 @@ function SmallActivity({activity, crit}) {
                 }}
             />
         </Map>
-        </div>);
+    </div>);
 }
 
 export default SmallActivity;

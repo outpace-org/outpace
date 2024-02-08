@@ -1,26 +1,25 @@
-import {React} from "react";
+import React from "react";
 import {connect, useSelector} from "react-redux";
-import Activity from "../components/Activity";
 import {useNavigate} from "react-router-dom";
 import {setUserTrips} from "../actions";
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faBicycle, faRunning} from '@fortawesome/free-solid-svg-icons';
 import {
-    fetchNewActivities,
-    getUserActivitiesFromDB,
     getUserDashboardFromDB,
-    postUserActivities
 } from "../utils/functions";
+import {ToastContainer, toast, Slide} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 let navigate;
 
 const goDashboard = async (strava_id) => {
     const pendingDash = await getUserDashboardFromDB(strava_id);
-    if (pendingDash.pending)
-        console.log("pending")
-    else
+    if (pendingDash.ready) {
         navigate("/redirectDB");
+    } else {
+        console.log("pending");
+    }
 };
 
 
@@ -67,6 +66,18 @@ const Summary = (props) => {
                         Go to my dashboard
                     </button>
                 </div>
+                <ToastContainer
+                    position="bottom-center"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                />
             </div>
         </div>
     );
