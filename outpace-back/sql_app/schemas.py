@@ -114,7 +114,8 @@ class TripCreate(TripBase):
 
 class Trip(BaseModel):
     id: int
-    name: str
+    start: str
+    end: str
     activities: List[ActivityBase]
 
     class Config:

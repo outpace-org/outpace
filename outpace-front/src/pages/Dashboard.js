@@ -163,7 +163,7 @@ const Dashboard = (props) => {
     };
 
     return (
-        <div style={{paddingTop: "5em", paddingBottom: "5em", overflowX: 'hidden'}}>
+        <div style={{paddingTop: "5em", overflowX: 'hidden'}}>
             <h1 style={{textAlign: 'center'}}>Your Big Trips</h1>
             {trips?.map((trip, index) => (
                 <div key={index}
@@ -182,7 +182,7 @@ const Dashboard = (props) => {
 
                 </div>
             ))}
-            <div style={{paddingTop: "5em", position: 'relative'}}>
+            <div style={{paddingTop: "2em", position: 'relative'}}>
                 <h1 style={{textAlign: 'center'}}>Your pinned activities</h1>
                 {pinnedActivities?.length > 0 && (
                     <button onClick={openDialog} style={{position: 'absolute', right: '1em', marginBottom: '1em'}}>
@@ -247,7 +247,7 @@ const Dashboard = (props) => {
                 </Modal>
             </div>
             <WorldMap activities={userActivities}/>
-            <h1 style={{textAlign: 'center'}}>Your activities ranked</h1>
+            <h1 style={{paddingTop:'2em', textAlign: 'center'}}>Your activities ranked</h1>
             {
                 rankedActivities?.map(actObj => (<ActivityRanking
                     crit={actObj.crit}
