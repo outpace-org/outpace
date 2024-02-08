@@ -19,6 +19,17 @@ const goDashboard = async (strava_id) => {
         navigate("/redirectDB");
     } else {
         console.log("pending");
+        toast.info('Dashboard not yet ready', {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+            transition: Slide,
+        });
     }
 };
 
