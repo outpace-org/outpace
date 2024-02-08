@@ -127,6 +127,42 @@ export const postUserActivities = async (acts) => {
     }
 };
 
+export const pinActivity = async (id) => {
+    const url = `${process.env.REACT_APP_HOST_URL}/activities/pin/${id}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+export const unpinActivities = async (strava_id) => {
+    const url = `${process.env.REACT_APP_HOST_URL}/activities/unpin/${strava_id}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
 export const getLastActivityTimestamp = async (userID) => {
     try {
         const str = `${REACT_APP_HOST_URL}/activities/last_date/${userID}`;
@@ -266,12 +302,14 @@ export const convertToMiles = (meters) => {
 export async function fetchNewActivities(strava_id) {
     const data = await getLastActivityTimestamp(strava_id);
     let mTimestamp = data.last_date;
-    const expired = true;
+    const expired = data.expires_in < 0;
     let token = data.token;
     if (expired) {
         const newTokenData = await reloadToken(strava_id);
         console.log("getting new token for ", strava_id);
         token = newTokenData.access_token;
+    } else {
+        console.log("Not expired")
     }
     const activities = await getUserActivitiesAfter(strava_id, token, mTimestamp);
     return activities;
@@ -301,6 +339,15 @@ export function centerZoomFromLocations(locations, width, height) {
 
 export const getRankedActivities = async (stravaId, actType, criteria, limit = 10) => {
     const response = await fetch(`${REACT_APP_HOST_URL}/activities/ranked/${stravaId}/${actType}/${criteria}?limit=${limit}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const activities = await response.json();
+    return activities;
+}
+
+export const getPinnedActivities = async (stravaId) => {
+    const response = await fetch(`${REACT_APP_HOST_URL}/activities/pinned/${stravaId}`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -350,6 +397,30 @@ export function getCodes(lat, lng) {
         return [...new Set(countries.features.map(f => f.properties.A3))];
     }
     return [];
+}
+
+export const formatNumber = (num) => {
+    return num.toFixed(2);
+}
+
+export const convertToKm = (meters) => {
+    return meters / 1000;
+}
+
+export const formatTime = (seconds) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    seconds = seconds % 60;
+    return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
+}
+
+export const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+export const nameTrip = (trip) => {
+    return `Trip from ${trip.start} to ${trip.end}`
 }
 
 

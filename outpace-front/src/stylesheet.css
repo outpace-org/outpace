@@ -257,7 +257,7 @@
     float: right !important;
 }
 
-.scrollContainer::-webkit-scrollbar {
+.pinnedContainer::-webkit-scrollbar {
     display: none;
 }
 

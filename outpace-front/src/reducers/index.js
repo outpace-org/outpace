@@ -95,6 +95,15 @@ const setDistanceRidesReducer = (distanceRides= null, action) => {
     }
 }
 
+const setTripNameReducer = (tripName= null, action) => {
+    switch (action.type) {
+        case "SET_TRIP_NAME":
+            return action.payload;
+        default:
+            return tripName;
+    }
+}
+
 const setTripActivitiesReducer = (tripActivities= null, action) => {
     switch (action.type) {
         case "SET_TRIP_ACTIVITIES":
@@ -122,6 +131,15 @@ const setUserTokenReducer = (token= null, action) => {
     }
 }
 
+const setPinnedActivitiesReducer = (pinnedActivities= null, action) => {
+    switch (action.type) {
+        case "SET_PINNED_ACTIVITIES":
+            return action.payload;
+        default:
+            return pinnedActivities;
+    }
+}
+
 
 export default combineReducers({
     userProfile: setUserProfileReducer,
@@ -136,5 +154,7 @@ export default combineReducers({
     distanceRides: setDistanceRidesReducer,
     countryVals: setCountryValsReducer,
     zoomeds: setZoomedsReducer,
-    tripActivities: setTripActivitiesReducer
+    pinnedActivities: setPinnedActivitiesReducer,
+    tripActivities: setTripActivitiesReducer,
+    tripName: setTripNameReducer
 });

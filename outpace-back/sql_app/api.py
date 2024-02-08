@@ -124,12 +124,14 @@ def read_activities(strava_id: int, exclude: List[int] = Query(None), db: Sessio
         raise HTTPException(status_code=404, detail="Activities not found")
     return activities
 
+
 @app.get("/activities/pinned/{strava_id}", response_model=List[schemas.Activity])
 def read_pinned_activities(strava_id: int, db: Session = Depends(get_db)):
     activities = crud.get_pinned_activities_by_strava_id(db, strava_id)
     if activities is None:
         raise HTTPException(status_code=404, detail="Pinned activities not found")
     return activities
+
 
 @app.get("/activities/elevation/{strava_id}/{elevation}", response_model=List[schemas.Activity])
 def get_activities_with_elevation(strava_id: int, elevation: int, db: Session = Depends(get_db)):
@@ -214,7 +216,17 @@ def process_activities(activities, db: Session = Depends(get_db)):
     trips = find_bike_trips(activities) + find_hiking_trips(activities)
 
     for trip in trips:
-        crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, name=trip[0].name + " " + trip[-1].name,
+        start_location = geolocator.reverse(f"{trip[0].start_latlng[0]},{trip[0].start_latlng[1]}")
+        start_address = start_location.raw['address']
+        start_city = start_address.get("city", '')
+        if start_city == '':
+            start_city = start_address.get("country", 'France')
+        end_location = geolocator.reverse(f"{trip[-1].end_latlng[0]},{trip[-1].end_latlng[1]}")
+        end_address = end_location.raw['address']
+        end_city = end_address.get("city", '')
+        if end_city == '':
+            end_city = end_address.get("country", 'France')
+        crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, start=start_city, end=end_city,
                                                 activities_id=[act.id for act in trip]))
 
     for activity in activities:
@@ -234,6 +246,7 @@ def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Dashboard not found")
     return db_dash
 
+
 @app.get("/activities/last_date/{strava_id}", response_model=ActivityInfo)
 def get_last_date(strava_id: int, db: Session = Depends(get_db)):
     token_obj = crud.get_athlete_slat(db, strava_id)
@@ -245,17 +258,25 @@ def get_last_date(strava_id: int, db: Session = Depends(get_db)):
     return ActivityInfo(token=tok, refresh_token=refresh_tok, last_date=last_date.timestamp(), expires_in=expires_in)
 
 
+@app.put("/activities/pin/{activity_id}")
+def pin_activity(activity_id: int, db: Session = Depends(get_db)):
+    activity = crud.update_activity(db=db, activity_id=activity_id)
+    if activity is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return {"message": "Activity pinned successfully"}
+
+
+@app.put("/activities/unpin/{strava_id}")
+def unpin_activities(strava_id: int, db: Session = Depends(get_db)):
+    activities = crud.unpin_activities(db=db, strava_id=strava_id)
+    if activities is None:
+        raise HTTPException(status_code=404, detail="Activities not found")
+    return {"message": "Activity unpinned successfully"}
+
+
 @app.post("/trips/")
 def create_trip(trip: schemas.TripCreate, db: Session = Depends(get_db)):
     return crud.create_trip(db=db, trip=trip)
-
-
-@app.put("/trips/{trip_id}")
-def update_trip(trip_id: int, new_name: str, db: Session = Depends(get_db)):
-    updated_trip = crud.update_trip(db=db, trip_id=trip_id, new_name=new_name)
-    if updated_trip is None:
-        raise HTTPException(status_code=404, detail="Trip not found")
-    return {"message": "Trip updated successfully"}
 
 
 @app.post("/trips/{trip_id}/activities/{activity_id}")
@@ -285,6 +306,7 @@ def delete_trip(trip_id: int, db: Session = Depends(get_db)):
 @app.get("/trips/{strava_id}", response_model=List[schemas.Trip])
 def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
     db_trips = crud.get_trips_by_strava_id(db, strava_id)
+    print("la longueur", len(db_trips))
     for trip in db_trips:
         trip.activities.sort(key=lambda activity: activity.start_date)
     if not db_trips:
@@ -302,7 +324,8 @@ def get_activity_count_by_country(strava_id: int, db: Session = Depends(get_db))
 
 
 @app.get("/activities/ranked/{strava_id}/{act_type}/{criteria}", response_model=List[schemas.ActivityBase])
-def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(10, ge=1), db: Session = Depends(get_db)):
+def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(10, ge=1),
+                        db: Session = Depends(get_db)):
     if criteria == "total_elevation_gain":
         ranking_criteria = models.Activity.total_elevation_gain
     elif criteria == "distance":

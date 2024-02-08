@@ -25,9 +25,23 @@ export const setZoomeds = (data) => {
     };
 };
 
+export const setTripName = (data) => {
+    return {
+        type: "SET_TRIP_NAME",
+        payload: data,
+    };
+};
+
 export const setDistanceRides = (data) => {
     return {
         type: "SET_DISTANCE_RIDES",
+        payload: data,
+    };
+};
+
+export const setPinnedActivities = (data) => {
+    return {
+        type: "SET_PINNED_ACTIVITIES",
         payload: data,
     };
 };

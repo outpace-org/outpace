@@ -7,6 +7,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const TripView = (props) => {
     const activities = useSelector((state) => state.tripActivities);
+    const name = useSelector((state) => state.tripName);
     const navigate = useNavigate();
 
     const handleBackClick = () => {
@@ -19,7 +20,7 @@ const TripView = (props) => {
                 <button onClick={handleBackClick}>
                     <FontAwesomeIcon icon={faArrowLeft}/> Back
                 </button>
-                <h1 style={{textAlign: 'center', marginLeft: 'auto', marginRight: 'auto'}}>Your Trip</h1>
+                <h1 style={{textAlign: 'center', marginLeft: 'auto', marginRight: 'auto'}}>{name}</h1>
             </div>
             {activities?.map((activity, index) => (
                 <div key={index}>

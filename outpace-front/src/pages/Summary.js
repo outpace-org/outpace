@@ -17,7 +17,7 @@ let navigate;
 
 const goDashboard = async (strava_id) => {
     const pendingDash = await getUserDashboardFromDB(strava_id);
-    if (pendingDash)
+    if (pendingDash.pending)
         console.log("pending")
     else
         navigate("/redirectDB");

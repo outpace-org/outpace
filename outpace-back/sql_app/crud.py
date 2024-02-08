@@ -93,7 +93,7 @@ def update_dashboard(db: Session, dashboard_id: int, pending: bool):
 
 
 def get_dashboard(db: Session, strava_id: int):
-    return db.query(models.Dashboard).filter(models.Dashboard.id == strava_id).first()
+    return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
 
 
 def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):
@@ -116,7 +116,7 @@ def get_last_activity_timestamp_by_strava_id(db: Session, strava_id: int):
 
 
 def create_trip(db: Session, trip: schemas.TripCreate):
-    db_trip = models.Trip(strava_id=trip.strava_id, name=trip.name)
+    db_trip = models.Trip(strava_id=trip.strava_id, start=trip.start, end=trip.end)
     db.add(db_trip)
     db.commit()
     db.refresh(db_trip)
@@ -124,15 +124,6 @@ def create_trip(db: Session, trip: schemas.TripCreate):
         db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
         if db_activity is not None:
             db_activity.trip_id = db_trip.id
-    db.commit()
-    return db_trip
-
-
-def update_trip(db: Session, trip_id: int, new_name: str):
-    db_trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
-    if db_trip is None:
-        return None
-    db_trip.name = new_name
     db.commit()
     return db_trip
 
@@ -169,3 +160,19 @@ def get_trips_by_strava_id(db: Session, strava_id: int):
     return (db.query(models.Trip).join(models.Activity).filter(models.Trip.strava_id == strava_id)
             .order_by(models.Activity.start_date).all())
 
+
+def update_activity(db: Session, activity_id: int):
+    db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+    if db_activity is None:
+        return None
+    db_activity.pinned = True
+    db.commit()
+    return db_activity
+
+
+def unpin_activities(db, strava_id):
+    db_activities = db.query(models.Activity).filter(models.Activity.strava_id == strava_id).all()
+    for activity in db_activities:
+        activity.pinned = False
+    db.commit()
+    return db_activities

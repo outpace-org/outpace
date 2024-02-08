@@ -1,19 +1,36 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Map, GeoJson} from "pigeon-maps";
-import {feature} from '@turf/helpers'
 import {
-    centerZoomFromLocations, getCodes,
+    centerZoomFromLocations, convertToKm, formatNumber,
     getGeoJsonContainingLatLng, includes,
-    mapboxProvider
+    mapboxProvider, nameTrip
 } from "../utils/functions";
 import {connect, useSelector} from "react-redux";
-import { faZoomIn } from '@fortawesome/free-solid-svg-icons';
 import {setZoomeds} from "../actions";
-
-let _ = require('lodash');
+import {
+    setKey,
+    setDefaults,
+    setLanguage,
+    setRegion,
+    fromAddress,
+    fromLatLng,
+    fromPlaceId,
+    setLocationType,
+    geocode,
+    RequestType,
+} from "react-geocode";
 
 
 var polyline = require('@mapbox/polyline');
+
+
+
+const calculateDuration = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    return duration;
+}
 
 function concatCoords(geo) {
     let coords = [];
@@ -68,14 +85,18 @@ function Trip({trip, index, onButtonClick}) {
         onButtonClick(index);
         setUpdate(update+1);
     };
+
+    const totalElevationGainDisplay = formatNumber(totalElevationGain);
+    const totalDistanceDisplay = formatNumber(convertToKm(totalDistance));
+    const duration = calculateDuration(trip.activities[0].start_date, trip.activities[trip.activities.length - 1].start_date);
     return (
         <div className="row" style={{padding: "10px"}}>
             <div className="column33">
-                <h2>Trip #{index + 1}</h2>
-                <p>Total Elevation Gain: {totalElevationGain}</p>
-                <p>Distance: {totalDistance}</p>
-                <p>Start Date: {trip.activities[0].start_date}</p>
-                <p>End Date: {trip.activities[trip.activities.length - 1].start_date}</p>
+                {/*<h2>Trip #{index + 1}</h2>*/}
+                <h2>{nameTrip(trip)}</h2>
+                <p>Total Elevation Gain: {totalElevationGainDisplay}m</p>
+                <p>Distance: {totalDistanceDisplay}km</p>
+                <p>Duration: {duration} days</p>
             </div>
             <div className="column66" style={{position: "relative"}}>
                 <Map
