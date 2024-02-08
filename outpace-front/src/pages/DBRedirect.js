@@ -6,7 +6,6 @@ import {
     setUserId,
     setUserTrips,
     setDistanceRides,
-    setCountryVals,
     setUserActivities,
     setPinnedActivities
 } from '../actions';
@@ -58,7 +57,6 @@ const DBRedirect = (props) => {
                 rankedActivities.push({type: "Ride", crit: "total_elevation_gain", "activities": rankedRidesElev});
                 rankedActivities.push({type: "Run", crit: "distance", "activities": rankedRunsDist});
                 rankedActivities.push({type: "Run", crit: "total_elevation_gain", "activities": rankedRunsElev});
-                countryVals = await fetchCountryValsFromDB(userID);
                 activities = await getUserActivitiesFromDB(userID);
 
                 console.log("ranked activities", rankedActivities);
@@ -79,7 +77,6 @@ const DBRedirect = (props) => {
                 console.log("there")
                 props.setUserTrips(userTrips);
                 props.setPinnedActivities(pinnedActivities);
-                props.setCountryVals(countryVals);
                 props.setUserActivities(activities);
                 props.setDistanceRides(rankedActivities);
                 navigate('/dashboard');
@@ -99,7 +96,6 @@ export default connect(null, {
     setUserId,
     setUserTrips,
     setDistanceRides,
-    setCountryVals,
     setPinnedActivities,
     setUserActivities
 })(DBRedirect);

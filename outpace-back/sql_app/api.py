@@ -109,7 +109,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
                                                 start_latlng=activity.start_latlng, end_latlng=activity.end_latlng,
                                                 start_date=activity.start_date,
                                                 type=activity.type, summary_polyline=activity.map.summary_polyline,
-                                                country=None, pinned=None)
+                                                pinned=None)
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()
@@ -229,13 +229,6 @@ def process_activities(activities, db: Session = Depends(get_db)):
         crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, start=start_city, end=end_city,
                                                 activities_id=[act.id for act in trip]))
 
-    for activity in activities:
-        location = geolocator.reverse(f"{activity.start_latlng[0]},{activity.start_latlng[1]}", language='en')
-        country = location.raw['address']['country']
-        print(activity.name, country)
-        activity.country = country
-        db.add(activity)  # ensure the object is in 'pending' state
-    db.commit()
     crud.update_dashboard(db, db_dash.id, True)
 
 
@@ -311,15 +304,6 @@ def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
     if not db_trips:
         raise HTTPException(status_code=404, detail="No trips found for this strava_id")
     return db_trips
-
-
-@app.get("/activities/countries/{strava_id}", response_model=List[Tuple[str, int]])
-def get_activity_count_by_country(strava_id: int, db: Session = Depends(get_db)):
-    db_resp = (db.query(models.Activity.country, func.count(models.Activity.id))
-               .where(models.Activity.strava_id == strava_id).group_by(models.Activity.country).all())
-    if not db_resp:
-        raise HTTPException(status_code=404, detail="No heatmap found for this strava_id")
-    return db_resp
 
 
 @app.get("/activities/ranked/{strava_id}/{act_type}/{criteria}", response_model=List[schemas.ActivityBase])

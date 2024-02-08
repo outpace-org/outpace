@@ -3,8 +3,6 @@ import {Map, GeoJson} from "pigeon-maps";
 import {
     centerZoomFromLocations,
     getGeoJsonContainingLatLng,
-    getGeoJsonFromCountry,
-    getUserActivitiesFromDB,
     mapboxProviderDark
 } from "../utils/functions";
 import polyline from "@mapbox/polyline";

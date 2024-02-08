@@ -113,15 +113,6 @@ const setTripActivitiesReducer = (tripActivities= null, action) => {
     }
 }
 
-const setCountryValsReducer = (countryVals= null, action) => {
-    switch (action.type) {
-        case "SET_COUNTRY_VALS":
-            return action.payload;
-        default:
-            return countryVals;
-    }
-}
-
 const setUserTokenReducer = (token= null, action) => {
     switch (action.type) {
         case "SET_USER_TOKEN":
@@ -152,7 +143,6 @@ export default combineReducers({
     userToken: setUserTokenReducer,
     userTrips: setUserTripsReducer,
     distanceRides: setDistanceRidesReducer,
-    countryVals: setCountryValsReducer,
     zoomeds: setZoomedsReducer,
     pinnedActivities: setPinnedActivitiesReducer,
     tripActivities: setTripActivitiesReducer,

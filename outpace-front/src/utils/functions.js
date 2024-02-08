@@ -242,21 +242,6 @@ export const getUserTripsFromDB = async (stravaId) => {
     }
 };
 
-export const fetchCountryValsFromDB = async (stravaId) => {
-    try {
-        const str = `${REACT_APP_HOST_URL}/activities/countries/${stravaId}`;
-        console.log("Trying to fetch", str)
-        const response = await fetch(str);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = response.json();
-        return await data;
-    } catch (error) {
-        console.log(error);
-    }
-};
-
 export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(

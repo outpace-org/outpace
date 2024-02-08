@@ -66,7 +66,6 @@ class ActivityBase(BaseModel):
     start_date: datetime
     type: str
     summary_polyline: str
-    country: Optional[str]
     pinned: Optional[bool]
 
 
