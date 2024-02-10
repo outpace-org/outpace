@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Map, GeoJson} from "pigeon-maps";
+import {Map, GeoJson, Marker} from "pigeon-maps";
 import {
     centerZoomFromLocations, convertToKm, formatNumber,
     getGeoJsonContainingLatLng, includes,
@@ -19,6 +19,7 @@ import {
     geocode,
     RequestType,
 } from "react-geocode";
+import activity from "./Activity";
 
 
 var polyline = require('@mapbox/polyline');
@@ -118,7 +119,7 @@ function Trip({trip, index, onButtonClick}) {
                         />
                     ))}
 
-                    <GeoJson
+                                        <GeoJson
                         data={{
                             type: 'FeatureCollection',
                             features: [{
@@ -141,6 +142,10 @@ function Trip({trip, index, onButtonClick}) {
                             return {fill: '#d4e6ec99', strokeWidth: '1', stroke: 'white', r: '20'}
                         }}
                     />
+
+                    {trip.activities.map((acti, index) => (
+                        index < trip.activities.length - 1 && zoomed && <Marker anchor={acti.end_latlng} title={acti.name} />
+                    ))}
 
 
                 </Map>
