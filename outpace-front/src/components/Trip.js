@@ -8,20 +8,6 @@ import {
 import {connect, useSelector} from "react-redux";
 import {setZoomeds} from "../actions";
 
-import {
-    setKey,
-    setDefaults,
-    setLanguage,
-    setRegion,
-    fromAddress,
-    fromLatLng,
-    fromPlaceId,
-    setLocationType,
-    geocode,
-    RequestType,
-} from "react-geocode";
-import activity from "./Activity";
-
 
 var polyline = require('@mapbox/polyline');
 
