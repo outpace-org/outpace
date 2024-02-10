@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import {connect} from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import {
     setUsersummary,
     setUserId,
@@ -26,6 +26,7 @@ const URL = 'http://localhost:3000/redirect';
 const scope = 'read,activity:read_all';
 
 const DBRedirect = (props) => {
+    const userID = useSelector((state) => state.userId);
     const location = useLocation();
     const navigate = useNavigate();
     let userTrips;
@@ -45,8 +46,6 @@ const DBRedirect = (props) => {
                 if (_.isEmpty(location)) {
                     return navigate('/');
                 }
-                const userID = getStravaId;
-                props.setUserId(userID);
                 userTrips = await getUserTripsFromDB(userID);
                 pinnedActivities = await getPinnedActivities(userID);
                 rankedRidesDist = await getRankedActivities(userID, "Ride", "distance");

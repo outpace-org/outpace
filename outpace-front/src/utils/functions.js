@@ -10,7 +10,7 @@ import _ from "lodash";
 import {useEffect, useState} from "react";
 
 
-const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
+const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_WEB_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
 
 
 export function setStravaId(id) {
@@ -20,8 +20,8 @@ export function setStravaId(id) {
 export const getStravaId = Cookies.get('strava_id');
 
 export const getParamValues = (url) => {
-    return url
-        .slice(1)
+    const afterQM = url.split("?")[1];
+    return afterQM
         .split("&")
         .reduce((prev, curr) => {
             const [title, value] = curr.split("=");
@@ -226,6 +226,30 @@ export const getUserDashboardFromDB = async (userID) => {
     }
 };
 
+export const getDashboardFromToken = async (token) => {
+    try {
+        let str = `${REACT_APP_HOST_URL}/dashboard/share/${token}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+
+export async function putDashboardToken(stravaId) {
+    try {
+        const response = await axios.put(`${REACT_APP_HOST_URL}/dashboard/share/${stravaId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+}
+
 
 export const getUserTripsFromDB = async (stravaId) => {
     try {
@@ -382,6 +406,10 @@ export function getCodes(lat, lng) {
         return [...new Set(countries.features.map(f => f.properties.A3))];
     }
     return [];
+}
+
+export const getDashboardURL = (token) => {
+    return `${REACT_APP_WEB_URL}/redirectDashboard?token=${token}`
 }
 
 export const formatNumber = (num) => {

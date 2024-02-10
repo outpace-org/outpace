@@ -96,6 +96,10 @@ def get_dashboard(db: Session, strava_id: int):
     return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
 
 
+def get_dashboard_by_token(db: Session, token: str):
+    return db.query(models.Dashboard).filter(models.Dashboard.token == token).first()
+
+
 def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):
     query = db.query(models.Activity).filter(models.Activity.strava_id == strava_id)
     if exclude:

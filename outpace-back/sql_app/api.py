@@ -1,4 +1,5 @@
 import datetime
+import random
 from typing import List, Dict, Tuple, Optional
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session, aliased
@@ -327,3 +328,39 @@ def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(1
 def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
     db_dash = crud.get_dashboard(db, strava_id)
     return db_dash
+
+
+@app.put("/dashboard/share/{strava_id}", response_model=schemas.DashboardShare)
+def get_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    if not db_dash.token:
+        db_dash.token = gen_tok()
+        db.commit()
+    return db_dash
+
+
+@app.put("/dashboard/unshare/{strava_id}")
+def del_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    if db_dash.token:
+        db_dash.token = None
+        db.commit()
+    return {"message": "Token deleted successfully"}
+
+
+@app.get("/dashboard/share/{token}", response_model=schemas.DashboardShare)
+def get_dashboard_from_token(token: str, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard_by_token(db, token)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    return db_dash
+
+
+def gen_tok(length: int = 25):
+    ords = list(range(65, 91)) + list(range(97, 122))
+    chars = [chr(ords[random.randrange(len(ords))]) for i in range(length)]
+    return ''.join(chars)

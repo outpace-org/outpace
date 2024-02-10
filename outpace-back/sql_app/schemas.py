@@ -124,3 +124,7 @@ class Trip(BaseModel):
 
 class DashboardBase(BaseModel):
     strava_id: int
+
+class DashboardShare(DashboardBase):
+    ready: bool
+    token: str

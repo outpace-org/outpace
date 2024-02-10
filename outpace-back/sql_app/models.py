@@ -1,6 +1,7 @@
 from typing import List
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, BigInteger, ARRAY, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, BigInteger, ARRAY, DateTime, \
+    UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -62,3 +63,6 @@ class Dashboard(Base):
     id = Column(BigInteger, primary_key=True, index=True)
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
     ready = Column(Boolean, default=False)
+    token = Column(String)
+
+    __table_args__ = (UniqueConstraint('token', name='unique_tok'), )

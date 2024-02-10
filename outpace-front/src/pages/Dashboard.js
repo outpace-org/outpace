@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import {
     fetchNewActivities,
     postUserActivities,
-    getUserActivitiesFromDB, pinActivity, unpinActivities, nameTrip
+    getUserActivitiesFromDB, pinActivity, unpinActivities, nameTrip, putDashboardToken, getDashboardURL
 } from "../utils/functions";
 import {useNavigate} from "react-router-dom";
 import {setTripActivities, setTripName, setUserActivities, setUsersummary, setUserTrips, setZoomeds} from "../actions";
@@ -12,12 +12,22 @@ import Trip from "../components/Trip";
 import SmallActivity from "../components/SmallActivity";
 import styled from 'styled-components';
 import { faStrava } from '@fortawesome/free-brands-svg-icons';
-import {faPlus, faArrowLeft, faArrowRight, faRunning, faBicycle} from '@fortawesome/free-solid-svg-icons';
+import {
+    faPlus,
+    faArrowLeft,
+    faArrowRight,
+    faRunning,
+    faBicycle,
+    faShareAlt,
+    faCheck
+} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import { faBan } from '@fortawesome/free-solid-svg-icons';
 import WorldMap from "../components/WorldMap";
 import {ToastContainer, toast, Slide} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FabComponent } from '@syncfusion/ej2-react-buttons';
+
 
 
 const LeftArrowButton = styled.button`
@@ -123,6 +133,39 @@ const Dashboard = (props) => {
             }
         });
     };
+
+    const handleShareClick = async () => {
+        putDashboardToken(strava_id).then(async (dashboard) => {
+            console.log("dash", dashboard);
+            if (dashboard.token) {
+                await navigator.clipboard.writeText(getDashboardURL(dashboard.token));
+                toast.info(<><FontAwesomeIcon icon={faCheck} />Link copied to clipboard</>, {
+                    position: "top-center",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Slide,
+                });
+            } else {
+                toast.error(<><FontAwesomeIcon icon={"face-sad-cry"}/>There was a problem with your share link</>, {
+                    position: "top-center",
+                    autoClose: 1000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Slide,
+                });
+
+            }
+        })
+    }
 
     const handleTripToggleButtonClick = (index) => {
         zoomeds[index] = !zoomeds[index];
@@ -285,6 +328,8 @@ const Dashboard = (props) => {
                 pauseOnHover
                 theme="light"
             />
+            <FabComponent id='fab' style={{backgroundColor:"#0800ff"}}
+            onClick={handleShareClick}><FontAwesomeIcon icon={faShareAlt}/></FabComponent>
         </div>
 
     )

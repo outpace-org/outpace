@@ -1,3 +1,6 @@
+@import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+@import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
+
 * {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
@@ -285,3 +288,4 @@ content: "";
 clear: both;
 display: table;
 }
+
