@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Map, GeoJson, Marker} from "pigeon-maps";
 import {
     centerZoomFromLocations, concatCoords, getGeoJsonContainingLatLng, includes, isPointInGeoJson,
