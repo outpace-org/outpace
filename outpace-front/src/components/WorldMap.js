@@ -1,20 +1,13 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Map, GeoJson} from "pigeon-maps";
 import {
-    centerZoomFromLocations,
+    centerZoomFromLocations, concatCoords,
     getGeoJsonContainingLatLng,
+    isPointInGeoJson,
     mapboxProviderDark
 } from "../utils/functions";
 import polyline from "@mapbox/polyline";
 import _ from "lodash";
-
-function concatCoords(geo) {
-    let coords = [];
-    geo.features.forEach(feature => {
-        coords = [...coords, ...feature.geometry.coordinates];
-    })
-    return coords[0];
-}
 
 function includes(arr, val) {
     let b = false;
@@ -33,7 +26,26 @@ function includes(arr, val) {
         return -1;
 }
 
+function useGeoJson() {
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        fetch('quebec.geojson')
+            .then(response => response.json())
+            .then(jsonData => setData(jsonData))
+            .catch(error => console.error(error));
+    }, []);
+
+    return data;
+}
+
+
 function WorldMap({activities}) {
+    const geoJson = useGeoJson();
+    // Don't try to use geoJson until it's defined
+    if (!geoJson) {
+        return <div>Loading...</div>;
+    }
     const mapWidth = window.innerWidth * .8;
     const mapHeight = mapWidth/1.5;
     let geos = [];
@@ -43,8 +55,12 @@ function WorldMap({activities}) {
         try {
             const activityCoordinates = polyline.decode(activity.summary_polyline).map(([lng, lat]) => [lat, lng]);
             const start = activityCoordinates[0];
-            const end = activityCoordinates[activityCoordinates.length - 1];
-            const geoStart = getGeoJsonContainingLatLng(start[1], start[0]);
+            let geoStart;
+            if (isPointInGeoJson(start[1], start[0], geoJson))
+                geoStart = geoJson;
+            else {
+                geoStart = getGeoJsonContainingLatLng(start[1], start[0])
+            }
             const ind = includes(geos, geoStart);
             if (ind === -1) {
                 geos.push(geoStart);
