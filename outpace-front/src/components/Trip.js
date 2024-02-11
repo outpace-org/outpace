@@ -13,10 +13,10 @@ var polyline = require('@mapbox/polyline');
 
 
 
-const calculateDuration = (startDate, endDate) => {
+const calculateDuration = (startDate, endDate, elapsed_time) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const duration = Math.ceil(((end - start)/1000 + elapsed_time)  / (60 * 60 * 24));
     return duration;
 }
 
@@ -98,7 +98,7 @@ function Trip({trip, index, onButtonClick}) {
 
     const totalElevationGainDisplay = formatNumber(totalElevationGain);
     const totalDistanceDisplay = formatNumber(convertToKm(totalDistance));
-    const duration = calculateDuration(trip.activities[0].start_date, trip.activities[trip.activities.length - 1].start_date);
+    const duration = calculateDuration(trip.activities[0].start_date, trip.activities[trip.activities.length - 1].start_date, trip.activities[trip.activities.length - 1].elapsed_time);
     return (
         <div className="row" style={{padding: "10px"}}>
             <div className="column33">

@@ -10,7 +10,14 @@ import {
 } from '../utils/functions';
 import {useNavigate} from 'react-router-dom';
 import {connect} from "react-redux";
-import {setDistanceRides, setPinnedActivities, setUserActivities, setUserId, setUserTrips} from "../actions";
+import {
+    setDistanceRides,
+    setExternal,
+    setPinnedActivities,
+    setUserActivities,
+    setUserId,
+    setUserTrips
+} from "../actions";
 
 
 const {REACT_APP_CLIENT_ID} = process.env;
@@ -36,6 +43,7 @@ const Home = (props) => {
             window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
         } else {
             props.setUserId(strava_id);
+            props.setExternal(false);
             navigate('/redirectDB');
         }
     };
@@ -82,5 +90,6 @@ const Home = (props) => {
 };
 
 export default connect(null, {
-    setUserId
+    setUserId,
+    setExternal
 })(Home);

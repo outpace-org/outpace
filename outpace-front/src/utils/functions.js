@@ -127,6 +127,21 @@ export const postUserActivities = async (acts) => {
     }
 };
 
+export const postUserProfile = async (prof) => {
+    try {
+        const response = await fetch(`${REACT_APP_HOST_URL}/profile/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(prof.data)
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 export const pinActivity = async (id) => {
     const url = `${process.env.REACT_APP_HOST_URL}/activities/pin/${id}`;
 
@@ -234,7 +249,9 @@ export const getDashboardFromToken = async (token) => {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return await response.json();
+        const theJson = await response.json();
+        console.log("And the response is", theJson)
+        return theJson;
     } catch (error) {
         console.log(error);
     }
@@ -270,6 +287,18 @@ export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(
             `https://www.strava.com/api/v3/athletes/${userID}/stats`,
+            {headers: {Authorization: `Bearer ${accessToken}`}}
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getUserProfile = async (userID, accessToken) => {
+    try {
+        const response = await axios.get(
+            `https://www.strava.com/api/v3/athletes/${userID}`,
             {headers: {Authorization: `Bearer ${accessToken}`}}
         );
         return response;

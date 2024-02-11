@@ -64,5 +64,6 @@ class Dashboard(Base):
     strava_id = Column(Integer, ForeignKey("refresh_tokens.strava_id"))
     ready = Column(Boolean, default=False)
     token = Column(String)
+    name = Column(String)
 
     __table_args__ = (UniqueConstraint('token', name='unique_tok'), )

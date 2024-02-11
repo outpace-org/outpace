@@ -8,7 +8,15 @@ import {
     putDashboardToken, getDashboardURL
 } from "../utils/functions";
 import {useNavigate} from "react-router-dom";
-import {setTripActivities, setTripName, setUserActivities, setUsersummary, setUserTrips, setZoomeds} from "../actions";
+import {
+    setExternal,
+    setTripActivities,
+    setTripName,
+    setUserActivities,
+    setUsersummary,
+    setUserTrips,
+    setZoomeds
+} from "../actions";
 import Trip from "../components/Trip";
 import SmallActivity from "../components/SmallActivity";
 import styled from 'styled-components';
@@ -59,9 +67,19 @@ const RightArrowButton = styled.button`
     }
 `;
 
+let name;
+
 
 const Dashboard = (props) => {
     const trips = useSelector((state) => state.userTrips);
+    const external = useSelector((state) => state.externalOrigin);
+    name = useSelector((state) => state.userName);
+    if (!external) {
+        name = "Your";
+    } else {
+        name = `${name}'s`
+    }
+    console.log("external", external, "name", name)
     let zoomeds = new Array(trips.length).fill(false);
     props.setZoomeds(zoomeds);
     const pinnedActivities = useSelector((state) => state.pinnedActivities)
@@ -222,7 +240,7 @@ const Dashboard = (props) => {
 
     return (
         <div style={{paddingTop: "5em", overflowX: 'hidden'}}>
-            <h1 style={{textAlign: 'center'}}>Your Big Trips</h1>
+            <h1 style={{textAlign: 'center'}}>{name} Big Trips</h1>
             {trips?.map((trip, index) => (
                 <div key={index}
                      onClick={() => handleTripClick(index)}
@@ -241,8 +259,8 @@ const Dashboard = (props) => {
                 </div>
             ))}
             <div style={{paddingTop: "2em", position: 'relative'}}>
-                <h1 style={{textAlign: 'center'}}>Your pinned activities</h1>
-                {pinnedActivities?.length > 0 && (
+                <h1 style={{textAlign: 'center'}}>{name} pinned activities</h1>
+                {!external && pinnedActivities?.length > 0 && (
                     <button onClick={openDialog} style={{position: 'absolute', right: '1em', marginBottom: '1em'}}>
                         Remove activities <FontAwesomeIcon icon={faBan}/>
                     </button>
@@ -267,9 +285,9 @@ const Dashboard = (props) => {
                     </div>
                 </Modal>
 
-                <button onClick={openModal} style={{marginLeft: '1em', marginBottom: '1em'}}>
+                {!external && <button onClick={openModal} style={{marginLeft: '1em', marginBottom: '1em'}}>
                     Add activity <FontAwesomeIcon icon={faPlus}/>
-                </button>
+                </button>}
                 <div className='pinnedContainer' ref={scrollContainerRef}
                      style={{padding: "10px", display: 'flex', overflowX: 'auto', backgroundColor: 'whitesmoke'}}>
                     {pinnedActivities?.length > 0 ? (
@@ -280,7 +298,7 @@ const Dashboard = (props) => {
                             </div>
                         ))
                     ) : (
-                        <div style={{width: '100%', textAlign: 'center'}}>Your pinned activities will appear here</div>
+                        <div style={{width: '100%', textAlign: 'center'}}>{name} pinned activities will appear here</div>
                     )}
                     {isOverflowing && <LeftArrowButton onClick={scrollLeft} style={{left: 0}}><FontAwesomeIcon
                         icon={faArrowLeft}/></LeftArrowButton>}
@@ -305,7 +323,7 @@ const Dashboard = (props) => {
                 </Modal>
             </div>
             <WorldMap activities={userActivities}/>
-            <h1 style={{paddingTop: '2em', textAlign: 'center'}}>Your activities ranked</h1>
+            <h1 style={{paddingTop: '2em', textAlign: 'center'}}>{name} activities ranked</h1>
             <div style={{display: 'flex', justifyContent: 'space-between', backgroundColor: 'whitesmoke'}}>
                 {rankedActivities?.map((actObj, index) => (
                     <div style={{
@@ -325,9 +343,9 @@ const Dashboard = (props) => {
                 ))}
             </div>
 
-            <button onClick={handleButtonClick} style={{marginLeft: '1em', display: 'block', margin: '2em auto'}}>
+            {!external && <button onClick={handleButtonClick} style={{marginLeft: '1em', display: 'block', margin: '2em auto'}}>
                 Fetch new activities from Strava <FontAwesomeIcon icon={faStrava}/>
-            </button>
+            </button>}
             <ToastContainer
                 position="bottom-center"
                 autoClose={5000}
@@ -340,8 +358,8 @@ const Dashboard = (props) => {
                 pauseOnHover
                 theme="light"
             />
-            <FabComponent id='fab' style={{backgroundColor:"#0800ff"}}
-            onClick={handleShareClick}><FontAwesomeIcon icon={faShareAlt}/></FabComponent>
+            {!external && <FabComponent id='fab' style={{backgroundColor: "#0800ff"}}
+                           onClick={handleShareClick}><FontAwesomeIcon icon={faShareAlt}/></FabComponent>}
         </div>
 
     )
@@ -375,7 +393,7 @@ function ActivityRanking({crit, activities}) {
                     </div>
                 ))
             ) : (
-                <div style={{width: '100%', textAlign: 'center'}}>Your ranked activities will appear here</div>
+                <div style={{width: '100%', textAlign: 'center'}}>{name} ranked activities will appear here</div>
             )}
         </div>
     );
@@ -388,6 +406,7 @@ const mapDispatchToProps = {
     setZoomeds,
     setTripActivities,
     setTripName,
+    setExternal,
     setUsersummary
 };
 

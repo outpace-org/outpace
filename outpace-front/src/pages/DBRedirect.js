@@ -7,7 +7,7 @@ import {
     setUserTrips,
     setDistanceRides,
     setUserActivities,
-    setPinnedActivities
+    setPinnedActivities, setExternal
 } from '../actions';
 import Loading from '../components/Loading';
 import {useLocation} from 'react-router-dom';
@@ -27,6 +27,7 @@ const scope = 'read,activity:read_all';
 
 const DBRedirect = (props) => {
     const userID = useSelector((state) => state.userId);
+    const externalOrigin = useSelector((state) => state.externalOrigin);
     const location = useLocation();
     const navigate = useNavigate();
     let userTrips;
@@ -74,6 +75,7 @@ const DBRedirect = (props) => {
                 window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
             } else {
                 console.log("there")
+                props.setExternal(externalOrigin);
                 props.setUserTrips(userTrips);
                 props.setPinnedActivities(pinnedActivities);
                 props.setUserActivities(activities);
@@ -96,5 +98,6 @@ export default connect(null, {
     setUserTrips,
     setDistanceRides,
     setPinnedActivities,
-    setUserActivities
+    setUserActivities,
+    setExternal
 })(DBRedirect);

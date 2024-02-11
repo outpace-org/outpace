@@ -14,7 +14,7 @@ import {
     postUserToken,
     getUserActivities,
     postUserActivities,
-    setStravaId
+    setStravaId, getUserProfile, postUserProfile
 } from '../utils/functions';
 
 const StravaRedirect = (props) => {
@@ -48,14 +48,18 @@ const StravaRedirect = (props) => {
 
                 // Axios request to get users info
                 const userStats = await getUserData(userID, accessToken);
+                const userProfile = await getUserProfile(userID, accessToken);
 
                 // Axios request to get users activities
                 const userActivities = await getUserActivities(userID, accessToken);
 
                 //posting the user's activities
                 const resp = await postUserActivities(userActivities);
+                const respProf = await postUserProfile(userProfile);
+
                 console.log(userActivities);
                 console.log(resp);
+                console.log(respProf);
 
                 props.setUsersummary(userActivities.data);
 

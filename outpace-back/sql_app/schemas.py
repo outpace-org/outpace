@@ -124,7 +124,16 @@ class Trip(BaseModel):
 
 class DashboardBase(BaseModel):
     strava_id: int
+    name: str
+
 
 class DashboardShare(DashboardBase):
     ready: bool
-    token: str
+    token: Optional[str]
+    name: Optional[str]
+
+
+class ProfileCreate(BaseModel):
+    id: int
+    firstname: str
+    lastname: str

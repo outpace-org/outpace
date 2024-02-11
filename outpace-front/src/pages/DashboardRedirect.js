@@ -7,7 +7,7 @@ import {
     setUserTrips,
     setDistanceRides,
     setUserActivities,
-    setPinnedActivities
+    setPinnedActivities, setUserName, setExternal
 } from '../actions';
 import Loading from '../components/Loading';
 import {useLocation} from 'react-router-dom';
@@ -32,19 +32,21 @@ const DBRedirect = (props) => {
     console.log("Vals", vals)
     const token = vals.token;
     let userID;
+    let userName;
 
     useEffect(() => {
         const fetch = async () => {
             try {
                 const dbData = await getDashboardFromToken(token);
                 userID = dbData.strava_id;
+                userName = dbData["name"];
 
 
             } catch (error) {
                 console.log(props)
                 console.log(error.stack)
                 //If error, go back home
-                navigate('/redirect');
+                //navigate('/redirect');
             }
         };
         fetch().then(r => {
@@ -52,6 +54,8 @@ const DBRedirect = (props) => {
                 navigate('/');
             } else {
                 props.setUserId(userID);
+                props.setUserName(userName);
+                props.setExternal(true);
                 navigate('/redirectDB');
             }
         });
@@ -70,5 +74,7 @@ export default connect(null, {
     setUserTrips,
     setDistanceRides,
     setPinnedActivities,
+    setUserName,
+    setExternal,
     setUserActivities
 })(DBRedirect);

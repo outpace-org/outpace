@@ -1,4 +1,5 @@
 import { combineReducers } from "redux";
+import {setExternal} from "../actions";
 
 const setUserProfileReducer = (user = null, action) => {
     switch (action.type) {
@@ -6,6 +7,16 @@ const setUserProfileReducer = (user = null, action) => {
             return action.payload;
         default:
             return user;
+    }
+};
+
+
+const setUserName = (name = null, action) => {
+    switch (action.type) {
+        case "SET_USER_NAME":
+            return action.payload;
+        default:
+            return name;
     }
 };
 
@@ -132,6 +143,16 @@ const setPinnedActivitiesReducer = (pinnedActivities= null, action) => {
 }
 
 
+const setExternalReducer = (external= null, action) => {
+    switch (action.type) {
+        case "SET_EXTERNAL":
+            return action.payload;
+        default:
+            return external;
+    }
+}
+
+
 export default combineReducers({
     userProfile: setUserProfileReducer,
     userActivities: setUserActivitiesReducer,
@@ -141,10 +162,12 @@ export default combineReducers({
     totalDistance: setTotalDistanceReducer,
     userId: setUserIdReducer,
     userToken: setUserTokenReducer,
+    userName: setUserName,
     userTrips: setUserTripsReducer,
     distanceRides: setDistanceRidesReducer,
     zoomeds: setZoomedsReducer,
     pinnedActivities: setPinnedActivitiesReducer,
+    externalOrigin: setExternalReducer,
     tripActivities: setTripActivitiesReducer,
     tripName: setTripNameReducer
 });

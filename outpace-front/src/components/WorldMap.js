@@ -40,6 +40,10 @@ function useGeoJson() {
 }
 
 
+function rankingAlpha(counts, index, maxim) {
+    return Math.sqrt(.1 + 0.8 * (counts[index] / maxim));
+}
+
 function WorldMap({activities}) {
     const geoJson = useGeoJson();
     // Don't try to use geoJson until it's defined
@@ -90,7 +94,7 @@ function WorldMap({activities}) {
                 {geos?.map((geo, index) => (
                     <GeoJson
                         data={geo}
-                        styleCallback={() => ({fill: `rgba(255, 0, 0, ${.2 + 0.8 * (counts[index] / maxim)})`})}
+                        styleCallback={() => ({fill: `rgba(255, 0, 0, ${(rankingAlpha(counts, index, maxim))})`})}
                     />
                 ))}
             </Map>
