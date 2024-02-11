@@ -12,8 +12,7 @@ host = os.getenv('OUTPACE_HOST')
 port = os.getenv('OUTPACE_PORT')
 DB_NAME = os.getenv('OUTPACE_DB')
 
-#SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
-SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@172.22.96.1:{port}/{DB_NAME}"
+SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
