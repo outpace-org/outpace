@@ -6,16 +6,16 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# username = os.getenv('OUTPACE_USER')
-# password = os.getenv('OUTPACE_PASSWORD')
-# host = os.getenv('OUTPACE_HOST')
-# port = os.getenv('OUTPACE_PORT')
-# DB_NAME = os.getenv('OUTPACE_DB')
+username = os.getenv('OUTPACE_USER')
+password = os.getenv('OUTPACE_PASSWORD')
+host = os.getenv('OUTPACE_HOST')
+port = os.getenv('OUTPACE_PORT')
+DB_NAME = os.getenv('OUTPACE_DB')
 
-# SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
-# SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@host.docker.internal:{port}/{DB_NAME}"
+#SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
+SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@172.22.96.1:{port}/{DB_NAME}"
 
-engine = create_engine(os.getenv("DATABASE_URL"))
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base: DeclarativeMeta = declarative_base()
