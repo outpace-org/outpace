@@ -17,4 +17,5 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./sql_app /code/app
 
-CMD ["bash", "wait-for-postgres.sh", "db", "5432", "uvicorn", "app.api:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
+# CMD ["bash", "wait-for-postgres.sh", "db", "5432", "uvicorn", "app.api:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.api:app", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
