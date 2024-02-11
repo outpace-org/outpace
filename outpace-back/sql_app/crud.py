@@ -93,8 +93,21 @@ def update_dashboard(db: Session, dashboard_id: int, ready: bool):
     return db_dash
 
 
+def update_dashboard_name(db: Session, strava_id: int, name: str):
+    db_dash = db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
+    if db_dash is None:
+        return None
+    db_dash.name = name
+    db.commit()
+    return db_dash
+
+
 def get_dashboard(db: Session, strava_id: int):
     return db.query(models.Dashboard).filter(models.Dashboard.strava_id == strava_id).first()
+
+
+def get_dashboard_by_token(db: Session, token: str):
+    return db.query(models.Dashboard).filter(models.Dashboard.token == token).first()
 
 
 def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):

@@ -7,10 +7,10 @@ import geoJson from "world-geojson";
 import getMap from "@geo-maps/countries-maritime-10m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
-import {useEffect, useState} from "react";
+import * as turf from "@turf/turf";
 
 
-const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
+const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_WEB_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
 
 
 export function setStravaId(id) {
@@ -20,8 +20,8 @@ export function setStravaId(id) {
 export const getStravaId = Cookies.get('strava_id');
 
 export const getParamValues = (url) => {
-    return url
-        .slice(1)
+    const afterQM = url.split("?")[1];
+    return afterQM
         .split("&")
         .reduce((prev, curr) => {
             const [title, value] = curr.split("=");
@@ -120,6 +120,21 @@ export const postUserActivities = async (acts) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(acts.data)
+        });
+        return response.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const postUserProfile = async (prof) => {
+    try {
+        const response = await fetch(`${REACT_APP_HOST_URL}/profile/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(prof.data)
         });
         return response.data;
     } catch (error) {
@@ -226,6 +241,32 @@ export const getUserDashboardFromDB = async (userID) => {
     }
 };
 
+export const getDashboardFromToken = async (token) => {
+    try {
+        let str = `${REACT_APP_HOST_URL}/dashboard/share/${token}`;
+        console.log("Trying to fetch", str)
+        const response = await fetch(str);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const theJson = await response.json();
+        console.log("And the response is", theJson)
+        return theJson;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+
+export async function putDashboardToken(stravaId) {
+    try {
+        const response = await axios.put(`${REACT_APP_HOST_URL}/dashboard/share/${stravaId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+}
+
 
 export const getUserTripsFromDB = async (stravaId) => {
     try {
@@ -246,6 +287,18 @@ export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(
             `https://www.strava.com/api/v3/athletes/${userID}/stats`,
+            {headers: {Authorization: `Bearer ${accessToken}`}}
+        );
+        return response;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+export const getUserProfile = async (userID, accessToken) => {
+    try {
+        const response = await axios.get(
+            `https://www.strava.com/api/v3/athletes/${userID}`,
             {headers: {Authorization: `Bearer ${accessToken}`}}
         );
         return response;
@@ -384,6 +437,10 @@ export function getCodes(lat, lng) {
     return [];
 }
 
+export const getDashboardURL = (token) => {
+    return `${REACT_APP_WEB_URL}/redirectDashboard?token=${token}`
+}
+
 export const formatNumber = (num) => {
     return num.toFixed(2);
 }
@@ -410,6 +467,45 @@ export const nameTrip = (trip) => {
 
 export const shortenText = (str, nb) => {
     return str.length <= nb ? str : `${str.substring(0, nb)}...`;
+}
+
+export function isPointInGeoJson(lat, lng, geoJson) {
+    const point = turf.point([lng, lat]);
+
+    let isInside = false;
+
+    turf.geomEach(geoJson, (geometry) => {
+        if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
+            if (turf.booleanPointInPolygon(point, geometry)) {
+                isInside = true;
+                return false; // This will stop the iteration
+            }
+        }
+    });
+    return isInside;
+
+}
+
+function flattenCoordinates(coords) {
+    if (!Array.isArray(coords)) {
+        return [coords];
+    }
+    // If the first element is a number, assume this is a [lat, lng] pair
+    if (typeof coords[0] === 'number') {
+        return [coords];
+    }
+    return coords.reduce((flattened, c) => {
+        return flattened.concat(flattenCoordinates(c));
+    }, []);
+}
+
+export function concatCoords(geo) {
+    let coords = [];
+    geo.features.forEach(feature => {
+        coords = [...coords, ...flattenCoordinates(feature.geometry.coordinates)];
+    });
+    return coords;
+
 }
 
 

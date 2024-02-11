@@ -53,6 +53,21 @@ export const setUserProfile = (data) => {
     };
 };
 
+export const setUserName = (data) => {
+    return {
+        type: "SET_USER_NAME",
+        payload: data,
+    };
+};
+
+
+export const setExternal = (data) => {
+    return {
+        type: "SET_EXTERNAL",
+        payload: data,
+    };
+};
+
 export const setUsersummary = (data) => {
     return {
         type: "SET_USER_SUMMARY",

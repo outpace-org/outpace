@@ -1,48 +1,47 @@
-import React, {useState} from "react";
-import {Map, GeoJson} from "pigeon-maps";
+import React, {useEffect, useState} from "react";
+import {Map, GeoJson, Marker} from "pigeon-maps";
 import {
-    centerZoomFromLocations, convertToKm, formatNumber,
-    getGeoJsonContainingLatLng, includes,
-    mapboxProvider, nameTrip
+    centerZoomFromLocations, concatCoords, getGeoJsonContainingLatLng, includes, isPointInGeoJson,
+    mapboxProvider,
+    convertToKm, formatNumber,nameTrip
 } from "../utils/functions";
 import {connect, useSelector} from "react-redux";
 import {setZoomeds} from "../actions";
-import {
-    setKey,
-    setDefaults,
-    setLanguage,
-    setRegion,
-    fromAddress,
-    fromLatLng,
-    fromPlaceId,
-    setLocationType,
-    geocode,
-    RequestType,
-} from "react-geocode";
 
 
 var polyline = require('@mapbox/polyline');
 
 
 
-const calculateDuration = (startDate, endDate) => {
+const calculateDuration = (startDate, endDate, elapsed_time) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const duration = Math.ceil(((end - start)/1000 + elapsed_time)  / (60 * 60 * 24));
     return duration;
 }
 
-function concatCoords(geo) {
-    let coords = [];
-    geo.features.forEach(feature => {
-        coords = [...coords, ...feature.geometry.coordinates];
-    })
-    return coords[0];
+function useGeoJson() {
+    const [data, setData] = useState(null);
+
+    useEffect(() => {
+        fetch('quebec.geojson')
+            .then(response => response.json())
+            .then(jsonData => setData(jsonData))
+            .catch(error => console.error(error));
+    }, []);
+
+    return data;
 }
 
+
 function Trip({trip, index, onButtonClick}) {
-    const [update, setUpdate] = useState(0);
+    const geoJson = useGeoJson();
     const zoomeds = useSelector((state) => state.zoomeds);
+    const [update, setUpdate] = useState(0);
+    // Don't try to use geoJson until it's defined
+    if (!geoJson) {
+        return <div>Loading...</div>;
+    }
     const zoomed = zoomeds[index];
     console.log("zoomed", zoomed)
     const theClass = zoomed ? "fas fa-search-minus" : "fas fa-search-plus";
@@ -60,8 +59,19 @@ function Trip({trip, index, onButtonClick}) {
             totalElevationGain += activity.total_elevation_gain;
             const start = activityCoordinates[0];
             const end = activityCoordinates[activityCoordinates.length - 1];
-            const geoStart = getGeoJsonContainingLatLng(start[1], start[0])
-            const geoEnd = getGeoJsonContainingLatLng(end[1], end[0])
+            let geoStart;
+            let geoEnd;
+            if (isPointInGeoJson(start[1], start[0], geoJson))
+                geoStart = geoJson;
+            else {
+                geoStart = getGeoJsonContainingLatLng(start[1], start[0])
+            }
+            if (isPointInGeoJson(end[1], end[0], geoJson)){
+                geoEnd = geoJson;
+            }
+            else{
+                geoEnd = getGeoJsonContainingLatLng(end[1], end[0]);
+            }
 
             if (!includes(geos, geoStart)) {
                 geos.push(geoStart);
@@ -83,12 +93,12 @@ function Trip({trip, index, onButtonClick}) {
     const handleToggleClick = (event) => {
         event.stopPropagation();
         onButtonClick(index);
-        setUpdate(update+1);
+        setUpdate(update + 1);
     };
 
     const totalElevationGainDisplay = formatNumber(totalElevationGain);
     const totalDistanceDisplay = formatNumber(convertToKm(totalDistance));
-    const duration = calculateDuration(trip.activities[0].start_date, trip.activities[trip.activities.length - 1].start_date);
+    const duration = calculateDuration(trip.activities[0].start_date, trip.activities[trip.activities.length - 1].start_date, trip.activities[trip.activities.length - 1].elapsed_time);
     return (
         <div className="row" style={{padding: "10px"}}>
             <div className="column33">
@@ -118,7 +128,7 @@ function Trip({trip, index, onButtonClick}) {
                         />
                     ))}
 
-                    <GeoJson
+                                        <GeoJson
                         data={{
                             type: 'FeatureCollection',
                             features: [{
@@ -141,6 +151,10 @@ function Trip({trip, index, onButtonClick}) {
                             return {fill: '#d4e6ec99', strokeWidth: '1', stroke: 'white', r: '20'}
                         }}
                     />
+
+                    {trip.activities.map((acti, index) => (
+                        index < trip.activities.length - 1 && zoomed && <Marker anchor={acti.end_latlng} title={acti.name} />
+                    ))}
 
 
                 </Map>

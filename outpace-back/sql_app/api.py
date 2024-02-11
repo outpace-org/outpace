@@ -1,4 +1,5 @@
 import datetime
+import random
 from typing import List, Dict, Tuple, Optional
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session, aliased
@@ -113,7 +114,13 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()
-    background_taks.add_task(process_activities, activities=db_activities, db=db)
+    strava_id = db_activities[0].strava_id
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        db_dash = crud.create_dashboard(db, strava_id)
+    else:
+        crud.update_dashboard(db, db_dash.id, False)
+    background_taks.add_task(process_activities, activities=db_activities, dash=db_dash,db=db)
     return db_activities
 
 
@@ -205,13 +212,8 @@ def find_hiking_trips(activities):
     return find_trips(activities_filtered)
 
 
-def process_activities(activities, db: Session = Depends(get_db)):
+def process_activities(activities, dash, db: Session = Depends(get_db)):
     strava_id = activities[0].strava_id
-    db_dash = crud.get_dashboard(db, strava_id)
-    if db_dash is None:
-        db_dash = crud.create_dashboard(db, strava_id)
-    else:
-        crud.update_dashboard(db, db_dash.id, False)
     # handling the creating of trips
     trips = find_bike_trips(activities) + find_hiking_trips(activities)
 
@@ -229,15 +231,24 @@ def process_activities(activities, db: Session = Depends(get_db)):
         crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, start=start_city, end=end_city,
                                                 activities_id=[act.id for act in trip]))
 
-    crud.update_dashboard(db, db_dash.id, True)
+    crud.update_dashboard(db, dash.id, True)
 
 
-@app.get("/dashboard/{strava_id}")
+@app.get("/dashboard/{strava_id}", response_model=schemas.DashboardShare)
 def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
     db_dash = crud.get_dashboard(db, strava_id)
     if db_dash is None:
         raise HTTPException(status_code=404, detail="Dashboard not found")
     return db_dash
+
+
+@app.post("/profile/")
+def update_dashboard_name(profile: schemas.ProfileCreate, db: Session = Depends(get_db)):
+    name = f"{profile.firstname} {profile.lastname}"
+    db_dash = crud.update_dashboard_name(db, profile.id, name)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    return {"message": "Dashboard updated successfully"}
 
 
 @app.get("/activities/last_date/{strava_id}", response_model=ActivityInfo)
@@ -323,7 +334,37 @@ def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(1
     return db_resp
 
 
-@app.get("/dashboard/{strava_id}", response_model=bool)
-def get_dashboard(strava_id: int, db: Session = Depends(get_db)):
+@app.put("/dashboard/share/{strava_id}", response_model=schemas.DashboardShare)
+def get_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
     db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    if not db_dash.token:
+        db_dash.token = gen_tok()
+        db.commit()
     return db_dash
+
+
+@app.put("/dashboard/unshare/{strava_id}")
+def del_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard(db, strava_id)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    if db_dash.token:
+        db_dash.token = None
+        db.commit()
+    return {"message": "Token deleted successfully"}
+
+
+@app.get("/dashboard/share/{token}", response_model=schemas.DashboardShare)
+def get_dashboard_from_token(token: str, db: Session = Depends(get_db)):
+    db_dash = crud.get_dashboard_by_token(db, token)
+    if db_dash is None:
+        raise HTTPException(status_code=404, detail="Dashboard not found")
+    return db_dash
+
+
+def gen_tok(length: int = 25):
+    ords = list(range(65, 91)) + list(range(97, 122))
+    chars = [chr(ords[random.randrange(len(ords))]) for i in range(length)]
+    return ''.join(chars)
