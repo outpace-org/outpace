@@ -20,9 +20,9 @@ import {
 } from "../actions";
 
 
-const {REACT_APP_CLIENT_ID} = process.env;
+const {REACT_APP_CLIENT_ID, REACT_APP_WEB_URL} = process.env;
 
-const URL = 'http://localhost:3000/redirect';
+const URL = `${REACT_APP_WEB_URL}/redirect`;
 
 const scope = 'read,activity:read_all';
 
