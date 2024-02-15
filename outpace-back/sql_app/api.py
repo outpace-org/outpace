@@ -120,7 +120,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
         db_dash = crud.create_dashboard(db, strava_id)
     else:
         crud.update_dashboard(db, db_dash.id, False)
-    background_taks.add_task(process_activities, activities=db_activities, dash=db_dash,db=db)
+    background_taks.add_task(process_activities, activities=db_activities, dash_id=db_dash.id, db=db)
     return db_activities
 
 
@@ -212,7 +212,7 @@ def find_hiking_trips(activities):
     return find_trips(activities_filtered)
 
 
-def process_activities(activities, dash, db: Session = Depends(get_db)):
+def process_activities(activities, dash_id, db: Session = Depends(get_db)):
     strava_id = activities[0].strava_id
     # handling the creating of trips
     trips = find_bike_trips(activities) + find_hiking_trips(activities)
@@ -231,7 +231,7 @@ def process_activities(activities, dash, db: Session = Depends(get_db)):
         crud.create_trip(db, schemas.TripCreate(strava_id=strava_id, start=start_city, end=end_city,
                                                 activities_id=[act.id for act in trip]))
 
-    crud.update_dashboard(db, dash.id, True)
+    crud.update_dashboard(db, dash_id, True)
 
 
 @app.get("/dashboard/{strava_id}", response_model=schemas.DashboardShare)
