@@ -6,11 +6,24 @@ services:
       - '3000:3000'
     depends_on:
       - backend
+    environment:
+      REACT_APP_CLIENT_ID: ${REACT_APP_CLIENT_ID}
+      REACT_APP_CLIENT_SECRET: ${REACT_APP_CLIENT_SECRET}
+      REACT_APP_HOST_URL: ${REACT_APP_HOST_URL}
+      REACT_APP_MAPBOX_ACCESS_TOKEN: ${REACT_APP_MAPBOX_ACCESS_TOKEN}
+      REACT_APP_SYNCFUSION_ACCESS_TOKEN: ${REACT_APP_SYNCFUSION_ACCESS_TOKEN}
+      REACT_APP_WEB_URL: ${REACT_APP_WEB_URL}
   backend:
     build: ./outpace-back
     ports:
       - '8000:8000'
     networks:
       - bridge
+    environment:
+      OUTPACE_DB: ${OUTPACE_DB}
+      OUTPACE_HOST: ${OUTPACE_HOST}
+      OUTPACE_PASSWORD: ${OUTPACE_PASSWORD}
+      OUTPACE_PORT: ${OUTPACE_PORT}
+      OUTPACE_USER: ${OUTPACE_USER}
 networks:
   bridge:
