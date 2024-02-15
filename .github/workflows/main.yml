@@ -28,6 +28,7 @@ jobs:
         context: ./outpace-back
         push: true
         tags: tomademagn/outpace:backend
+      env:
         OUTPACE_DB: ${{ secrets.OUTPACE_DB }}
         OUTPACE_HOST: ${{ secrets.OUTPACE_HOST }}
         OUTPACE_PASSWORD: ${{ secrets.OUTPACE_PASSWORD }}
@@ -40,6 +41,7 @@ jobs:
         context: ./outpace-front
         push: true
         tags: tomademagn/outpace:frontend
+      env:
         REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
         REACT_APP_CLIENT_SECRET: ${{ secrets.REACT_APP_CLIENT_SECRET }}
         REACT_APP_HOST_URL: ${{ secrets.REACT_APP_HOST_URL }}
