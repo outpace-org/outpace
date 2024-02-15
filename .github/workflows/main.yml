@@ -1,0 +1,48 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - server
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push backend image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./outpace-back
+        push: true
+        tags: tomademagn/outpace:backend
+        OUTPACE_DB: ${{ secrets.OUTPACE_DB }}
+        OUTPACE_HOST: ${{ secrets.OUTPACE_HOST }}
+        OUTPACE_PASSWORD: ${{ secrets.OUTPACE_PASSWORD }}
+        OUTPACE_PORT: ${{ secrets.OUTPACE_PORT }}
+        OUTPACE_USER: ${{ secrets.OUTPACE_USER }}
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v2
+      with:
+        context: ./outpace-front
+        push: true
+        tags: tomademagn/outpace:frontend
+        REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+        REACT_APP_CLIENT_SECRET: ${{ secrets.REACT_APP_CLIENT_SECRET }}
+        REACT_APP_HOST_URL: ${{ secrets.REACT_APP_HOST_URL }}
+        REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
+        REACT_APP_SYNCFUSION_ACCESS_TOKEN: ${{ secrets.REACT_APP_SYNCFUSION_ACCESS_TOKEN }}
+        REACT_APP_WEB_URL: ${{ secrets.REACT_APP_WEB_URL }}
