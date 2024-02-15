@@ -39,7 +39,8 @@
     "styled-components": "^6.1.8",
     "web-vitals": "^2.1.4",
     "world-atlas": "^1.1.2",
-    "world-geojson": "^3.0"
+    "world-geojson": "^3.0",
+    "serve": "^12.0.0"
   },
   "scripts": {
     "docker-build": "docker build -t outpace-front .",
@@ -47,7 +48,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "serve -s . -l 3000"
   },
   "eslintConfig": {
     "extends": [
