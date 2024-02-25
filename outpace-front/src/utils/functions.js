@@ -371,14 +371,22 @@ export async function fetchNewActivities(strava_id) {
   return activities;
 }
 
+// export function getProvider(dark) {
+//   if (!dark)
+//     return process.env.NODE_ENV !== "development" ? mapboxProvider : undefined;
+//   else
+//     return process.env.NODE_ENV !== "development"
+//       ? mapboxProviderDark
+//       : undefined;
+// }
+
 export function getProvider(dark) {
   if (!dark)
-    return process.env.NODE_ENV !== "development" ? mapboxProvider : undefined;
+    return mapboxProvider;
   else
-    return process.env.NODE_ENV !== "development"
-      ? mapboxProviderDark
-      : undefined;
+    return mapboxProviderDark;
 }
+
 
 export function mapboxProvider(x, y, z, dpr) {
   return `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/${z}/${x}/${y}${dpr >= 2 ? "@2x" : ""}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
