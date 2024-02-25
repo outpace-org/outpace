@@ -67,6 +67,7 @@ class ActivityBase(BaseModel):
     type: str
     summary_polyline: str
     pinned: Optional[bool]
+    elevations: Optional[List[float]]
 
 
 class ActivityInfo(BaseModel):

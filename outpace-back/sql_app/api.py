@@ -91,6 +91,12 @@ def update_token(
     return crud.update_AthleteSLAT(db=db, strava_id=strava_id, athlete_slat=athlete_slat)
 
 
+@app.put("/activities/{activity_id}/elevations/", response_model=schemas.Activity)
+def add_altitudes_to_activity(
+        activity_id: int, elevations: List[float], db: Session = Depends(get_db)
+):
+    return crud.add_elevations(db, activity_id=activity_id, elevations=elevations)
+
 @app.post("/activities/", response_model=List[schemas.Activity])
 def add_activities(activities: List[schemas.ActivityCreate], background_taks: BackgroundTasks,
                    db: Session = Depends(get_db)):
@@ -110,7 +116,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
                                                 start_latlng=activity.start_latlng, end_latlng=activity.end_latlng,
                                                 start_date=activity.start_date,
                                                 type=activity.type, summary_polyline=activity.map.summary_polyline,
-                                                pinned=None)
+                                                pinned=None, elevations=None)
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
     db.commit()
@@ -264,7 +270,7 @@ def get_last_date(strava_id: int, db: Session = Depends(get_db)):
 
 @app.put("/activities/pin/{activity_id}")
 def pin_activity(activity_id: int, db: Session = Depends(get_db)):
-    activity = crud.update_activity(db=db, activity_id=activity_id)
+    activity = crud.pin_activity(db=db, activity_id=activity_id)
     if activity is None:
         raise HTTPException(status_code=404, detail="Activity not found")
     return {"message": "Activity pinned successfully"}
@@ -354,7 +360,6 @@ def del_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
         db_dash.token = None
         db.commit()
     return {"message": "Token deleted successfully"}
-
 
 @app.get("/dashboard/share/{token}", response_model=schemas.DashboardShare)
 def get_dashboard_from_token(token: str, db: Session = Depends(get_db)):
