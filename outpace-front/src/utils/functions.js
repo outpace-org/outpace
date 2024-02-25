@@ -381,7 +381,7 @@ export async function fetchNewActivities(strava_id) {
 //}
 export function getProvider(dark) {
   if (!dark)
-    return pmapboxProvider;
+    return mapboxProvider;
   else
     return mapboxProviderDark;
 }
