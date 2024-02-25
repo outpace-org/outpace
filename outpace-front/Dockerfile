@@ -13,5 +13,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --only=production
 COPY --from=build /app/build ./build
+COPY --from=build /app/public ./public  # Copy the public directory into the production image
 EXPOSE 3000
 CMD ["npm", "start"]
