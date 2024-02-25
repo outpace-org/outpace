@@ -5,7 +5,6 @@ from . import models
 from . import schemas
 
 
-
 def get_refresh_token(db: Session, refresh_token_id: int):
     return db.query(models.RefreshToken).filter(models.RefreshToken.id == refresh_token_id).first()
 
@@ -176,7 +175,7 @@ def get_trips_by_strava_id(db: Session, strava_id: int):
             .order_by(models.Activity.start_date).all())
 
 
-def update_activity(db: Session, activity_id: int):
+def pin_activity(db: Session, activity_id: int):
     db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
     if db_activity is None:
         return None
@@ -191,3 +190,12 @@ def unpin_activities(db, strava_id):
         activity.pinned = False
     db.commit()
     return db_activities
+
+
+def add_elevations(db, activity_id: int, elevations: List[float]):
+    db_activity = db.query(models.Activity).filter(models.Activity.id == activity_id).first()
+    if db_activity is None:
+        return None
+    db_activity.elevations = elevations
+    db.commit()
+    return db_activity

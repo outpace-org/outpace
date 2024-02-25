@@ -45,6 +45,7 @@ class Activity(Base):
     summary_polyline = Column(String)
     trip = relationship("Trip", back_populates="activities")
     pinned = Column(Boolean, default=False)
+    elevations = Column(ARRAY(Float), default=[])
 
 
 class Trip(Base):
