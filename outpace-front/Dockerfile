@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN node --max-old-space-size=8192 $(which npm) run build
+RUN npm run build
 
 # Use a new stage to create a lean production image
 FROM node:18 as production
