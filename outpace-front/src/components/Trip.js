@@ -3,7 +3,7 @@ import {Map, GeoJson, Marker} from "pigeon-maps";
 import {
     centerZoomFromLocations, concatCoords, getGeoJsonContainingLatLng, includes, isPointInGeoJson,
     mapboxProvider,
-    convertToKm, formatNumber,nameTrip
+    convertToKm, formatNumber, nameTrip, getExtremeLocations, getProvider
 } from "../utils/functions";
 import {connect, useSelector} from "react-redux";
 import {setZoomeds} from "../actions";
@@ -75,12 +75,12 @@ function Trip({trip, index, onButtonClick}) {
 
             if (!includes(geos, geoStart)) {
                 geos.push(geoStart);
-                combinedCoords = [...combinedCoords, ...concatCoords(geoStart)];
+                combinedCoords = [...combinedCoords, ...getExtremeLocations(concatCoords(geoStart))];
                 ind++;
             }
             if (!includes(geos, geoEnd)) {
                 geos.push(geoEnd);
-                combinedCoords = [...combinedCoords, ...concatCoords(geoEnd)];
+                combinedCoords = [...combinedCoords, ...getExtremeLocations(concatCoords(geoEnd))];
                 ind++;
             }
         } catch (error) {
@@ -114,7 +114,7 @@ function Trip({trip, index, onButtonClick}) {
                     height={mapHeight}
                     center={[centerZoom.center[1], centerZoom.center[0]]}
                     zoom={centerZoom.zoom}
-                    provider={mapboxProvider}
+                    provider={getProvider()}
                     twoFingerDrag={false}
                     mouseEvents={false}
                 >

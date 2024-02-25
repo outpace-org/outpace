@@ -8,17 +8,18 @@ import getMap from "@geo-maps/countries-maritime-10m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
 import * as turf from "@turf/turf";
+const geolib = require('geolib');
 
-
-const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_WEB_URL, REACT_APP_MAPBOX_ACCESS_TOKEN} = process.env;
+export const {REACT_APP_CLIENT_ID, REACT_APP_CLIENT_SECRET, REACT_APP_HOST_URL, REACT_APP_WEB_URL,
+    REACT_APP_MAPBOX_ACCESS_TOKEN, REACT_APP_ION_DEFAULT_ACCESS_TOKEN} = process.env;
 
 
 export function setStravaId(id) {
     Cookies.set('strava_id', id, {expires: 7});
+
 };
 
 export const getStravaId = Cookies.get('strava_id');
-
 export const getParamValues = (url) => {
     const afterQM = url.split("?")[1];
     return afterQM
@@ -28,12 +29,12 @@ export const getParamValues = (url) => {
             prev[title] = value;
             return prev;
         }, {});
-};
 
+};
 export const cleanUpAuthToken = (str) => {
     return str.split("&")[1].slice(5);
-};
 
+};
 export const testAuthGetter = async (authTok) => {
     try {
         const response = await axios.post(
@@ -43,8 +44,8 @@ export const testAuthGetter = async (authTok) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const postUserToken = async (toks) => {
     try {
         const response = await fetch(`${REACT_APP_HOST_URL}/register_token/`, {
@@ -58,8 +59,8 @@ export const postUserToken = async (toks) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 // Function to get refresh token from the database
 async function getRefreshTokenFromDB(stravaId) {
     try {
@@ -68,8 +69,8 @@ async function getRefreshTokenFromDB(stravaId) {
     } catch (error) {
         console.error('Error during API call', error);
     }
-}
 
+}
 // Function to post new token to the database
 async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
     try {
@@ -83,16 +84,16 @@ async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
     } catch (error) {
         console.error('Error during API call', error);
     }
+
+
 }
-
-
 // To fetch new token from strava and store it in DB
-export const reloadToken = async (stravaId) => {
 
+export const reloadToken = async (stravaId) => {
     // Retrieve client_id and client_secret from .env
     const client_id = process.env.REACT_APP_CLIENT_ID;
-    const client_secret = process.env.REACT_APP_CLIENT_SECRET;
 
+    const client_secret = process.env.REACT_APP_CLIENT_SECRET;
     // Retrieve refresh_token from the function getRefreshTokenFromDB
     const refresh_token = await getRefreshTokenFromDB(stravaId);
     try {
@@ -110,8 +111,8 @@ export const reloadToken = async (stravaId) => {
     } catch (error) {
         console.error('Error during API call', error);
     }
-};
 
+};
 export const postUserActivities = async (acts) => {
     try {
         const response = await fetch(`${REACT_APP_HOST_URL}/activities/`, {
@@ -125,8 +126,8 @@ export const postUserActivities = async (acts) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const postUserProfile = async (prof) => {
     try {
         const response = await fetch(`${REACT_APP_HOST_URL}/profile/`, {
@@ -140,11 +141,11 @@ export const postUserProfile = async (prof) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const pinActivity = async (id) => {
+
     const url = `${process.env.REACT_APP_HOST_URL}/activities/pin/${id}`;
-
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -158,11 +159,11 @@ export const pinActivity = async (id) => {
     } catch (error) {
         console.error('Error:', error);
     }
-};
 
+};
 export const unpinActivities = async (strava_id) => {
-    const url = `${process.env.REACT_APP_HOST_URL}/activities/unpin/${strava_id}`;
 
+    const url = `${process.env.REACT_APP_HOST_URL}/activities/unpin/${strava_id}`;
     try {
         const response = await fetch(url, {
             method: 'PUT',
@@ -176,8 +177,8 @@ export const unpinActivities = async (strava_id) => {
     } catch (error) {
         console.error('Error:', error);
     }
-};
 
+};
 export const getLastActivityTimestamp = async (userID) => {
     try {
         const str = `${REACT_APP_HOST_URL}/activities/last_date/${userID}`;
@@ -191,10 +192,10 @@ export const getLastActivityTimestamp = async (userID) => {
     } catch (error) {
         console.log(error);
     }
+
 };
 
 // export const fetchStravaAfterDate
-
 export const getUserActivitiesElevationFromDB = async (userID) => {
     try {
         const str = `${REACT_APP_HOST_URL}/activities/elevation/${userID}/30000`;
@@ -207,8 +208,8 @@ export const getUserActivitiesElevationFromDB = async (userID) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserActivitiesFromDB = async (userID, exclude = []) => {
     try {
         let str = `${REACT_APP_HOST_URL}/activities/${userID}`;
@@ -225,8 +226,8 @@ export const getUserActivitiesFromDB = async (userID, exclude = []) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserDashboardFromDB = async (userID) => {
     try {
         let str = `${REACT_APP_HOST_URL}/dashboard/${userID}`;
@@ -239,8 +240,8 @@ export const getUserDashboardFromDB = async (userID) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getDashboardFromToken = async (token) => {
     try {
         let str = `${REACT_APP_HOST_URL}/dashboard/share/${token}`;
@@ -255,9 +256,9 @@ export const getDashboardFromToken = async (token) => {
     } catch (error) {
         console.log(error);
     }
+
+
 };
-
-
 export async function putDashboardToken(stravaId) {
     try {
         const response = await axios.put(`${REACT_APP_HOST_URL}/dashboard/share/${stravaId}`);
@@ -265,9 +266,9 @@ export async function putDashboardToken(stravaId) {
     } catch (error) {
         console.error('Error during API call', error);
     }
+
+
 }
-
-
 export const getUserTripsFromDB = async (stravaId) => {
     try {
         const str = `${REACT_APP_HOST_URL}/trips/${stravaId}`;
@@ -281,8 +282,8 @@ export const getUserTripsFromDB = async (stravaId) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserData = async (userID, accessToken) => {
     try {
         const response = await axios.get(
@@ -293,8 +294,8 @@ export const getUserData = async (userID, accessToken) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserProfile = async (userID, accessToken) => {
     try {
         const response = await axios.get(
@@ -305,8 +306,8 @@ export const getUserProfile = async (userID, accessToken) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserActivities = async (userID, accessToken) => {
     try {
         const response = await axios.get(
@@ -317,8 +318,8 @@ export const getUserActivities = async (userID, accessToken) => {
     } catch (error) {
         console.log(error);
     }
-};
 
+};
 export const getUserActivitiesAfter = async (userID, accessToken, after) => {
     try {
         let str = `https://www.strava.com/api/v3/athletes/${userID}/activities?after=${after}&per_page=200`
@@ -331,12 +332,32 @@ export const getUserActivitiesAfter = async (userID, accessToken, after) => {
     } catch (error) {
         console.log(error);
     }
+
 };
+
+async function putActivityElevations(activityId, elevations) {
+    try {
+        const response = await axios.put(`${REACT_APP_HOST_URL}/activities/${activityId}/elevations/`, elevations);
+        return response.data;
+    } catch (error) {
+        console.error('Error during API call', error);
+    }
+}
+
+export const addElevationsToActivity = async (activityId, geoJson3d) => {
+    console.log("la maaaaaaap", geoJson3d);
+    let geoCoords = geoJson3d.features.map((feat)=> feat.geometry.coordinates[0]);
+    geoCoords.push(geoJson3d.features[geoJson3d.features.length-1].geometry.coordinates[1])
+    const elevations = geoCoords.map((coord) => coord[2]);
+    console.log("the elevations", elevations);
+    const resp  = await putActivityElevations(activityId, elevations);
+    return resp;
+}
 
 export const convertToMiles = (meters) => {
     return (meters * 0.621371) / 1000;
-};
 
+};
 export async function fetchNewActivities(strava_id) {
     const data = await getLastActivityTimestamp(strava_id);
     let mTimestamp = data.last_date;
@@ -351,6 +372,16 @@ export async function fetchNewActivities(strava_id) {
     }
     const activities = await getUserActivitiesAfter(strava_id, token, mTimestamp);
     return activities;
+
+}
+
+
+
+export function getProvider(dark) {
+    if (!dark)
+        return process.env.NODE_ENV !== 'development' ? mapboxProvider : undefined;
+    else
+        return process.env.NODE_ENV !== 'development' ? mapboxProviderDark : undefined;
 }
 
 export function mapboxProvider(x, y, z, dpr) {
@@ -373,8 +404,8 @@ export function centerZoomFromLocations(locations, width, height) {
         center,
         zoom: Math.min(zoom, 13)
     }
-}
 
+}
 export const getRankedActivities = async (stravaId, actType, criteria, limit = 10) => {
     const response = await fetch(`${REACT_APP_HOST_URL}/activities/ranked/${stravaId}/${actType}/${criteria}?limit=${limit}`);
     if (!response.ok) {
@@ -382,8 +413,8 @@ export const getRankedActivities = async (stravaId, actType, criteria, limit = 1
     }
     const activities = await response.json();
     return activities;
-}
 
+}
 export const getPinnedActivities = async (stravaId) => {
     const response = await fetch(`${REACT_APP_HOST_URL}/activities/pinned/${stravaId}`);
     if (!response.ok) {
@@ -391,8 +422,8 @@ export const getPinnedActivities = async (stravaId) => {
     }
     const activities = await response.json();
     return activities;
-}
 
+}
 export function includes(arr, val) {
     let b = false;
     arr.forEach(v => {
@@ -401,79 +432,79 @@ export function includes(arr, val) {
         }
     })
     return b;
-}
 
+}
 export function getGeoJsonFromCountry(country){
     return country === "United States" ?
         geoJson.forCountry("USA") : geoJson.forCountry(country)
-}
 
+}
 let worldLookup = null;
 export function getGeoJsonContainingLatLng(lat, lng) {
     if (worldLookup === null) {
         const map = getMap();
         worldLookup = new GeoJsonPolygonLookup(map);
-    }
 
+    }
     const countries = worldLookup.getContainers({type: 'Point', coordinates: [lng, lat]});
     let feats = countries.features;
     let codes = [...new Set(countries.features.map(f => f.properties.A3))];
     return {
         type: 'FeatureCollection',
         features: feats};
-}
 
+}
 export function getCodes(lat, lng) {
     if (worldLookup === null) {
         const map = getMap();
         worldLookup = new GeoJsonPolygonLookup(map);
+
     }
 
     const countries = worldLookup.getContainers({type: 'Point', coordinates: [lng, lat]});
-
     if (countries.features.length > 0) {
         return [...new Set(countries.features.map(f => f.properties.A3))];
     }
     return [];
-}
 
+}
 export const getDashboardURL = (token) => {
     return `${REACT_APP_WEB_URL}/redirectDashboard?token=${token}`
-}
 
+}
 export const formatNumber = (num) => {
     return num.toFixed(2);
-}
 
+}
 export const convertToKm = (meters) => {
     return meters / 1000;
-}
 
+}
 export const formatTime = (seconds) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     seconds = seconds % 60;
     return `${hours > 0 ? hours + 'h ' : ''}${minutes}m ${seconds}s`;
-}
 
+}
 export const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
-}
 
+}
 export const nameTrip = (trip) => {
     return `Trip from ${trip.start} to ${trip.end}`
-}
 
+}
 export const shortenText = (str, nb) => {
     return str.length <= nb ? str : `${str.substring(0, nb)}...`;
-}
 
+}
 export function isPointInGeoJson(lat, lng, geoJson) {
+
     const point = turf.point([lng, lat]);
 
     let isInside = false;
-
     turf.geomEach(geoJson, (geometry) => {
         if (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon') {
             if (turf.booleanPointInPolygon(point, geometry)) {
@@ -482,10 +513,10 @@ export function isPointInGeoJson(lat, lng, geoJson) {
             }
         }
     });
+
     return isInside;
 
 }
-
 function flattenCoordinates(coords) {
     if (!Array.isArray(coords)) {
         return [coords];
@@ -497,16 +528,18 @@ function flattenCoordinates(coords) {
     return coords.reduce((flattened, c) => {
         return flattened.concat(flattenCoordinates(c));
     }, []);
-}
 
+}
 export function concatCoords(geo) {
     let coords = [];
     geo.features.forEach(feature => {
         coords = [...coords, ...flattenCoordinates(feature.geometry.coordinates)];
     });
+
     return coords;
 
 }
-
-
-
+export function getExtremeLocations(coords) {
+    const bounds = geolib.getBounds(coords);
+    return [[bounds.minLng, bounds.minLat], [bounds.maxLng, bounds.minLat],[bounds.maxLng, bounds.maxLat], [bounds.maxLng, bounds.minLat]];
+}

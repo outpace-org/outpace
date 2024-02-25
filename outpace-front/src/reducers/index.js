@@ -152,6 +152,15 @@ const setExternalReducer = (external= null, action) => {
     }
 }
 
+const setAltitudesReducer = (altitudes= null, action) => {
+    switch (action.type) {
+        case "SET_ALTITUDES":
+            return action.payload;
+        default:
+            return altitudes;
+    }
+}
+
 
 export default combineReducers({
     userProfile: setUserProfileReducer,
@@ -169,5 +178,6 @@ export default combineReducers({
     pinnedActivities: setPinnedActivitiesReducer,
     externalOrigin: setExternalReducer,
     tripActivities: setTripActivitiesReducer,
+    altitudes: setAltitudesReducer,
     tripName: setTripNameReducer
 });

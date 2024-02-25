@@ -46,6 +46,13 @@ export const setPinnedActivities = (data) => {
     };
 };
 
+export const setAltitudes = (data) => {
+    return {
+        type: "SET_ALTITUDES",
+        payload: data,
+    };
+};
+
 export const setUserProfile = (data) => {
     return {
         type: "SET_USER_PROFILE",

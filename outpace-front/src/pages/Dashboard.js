@@ -5,10 +5,11 @@ import {
     fetchNewActivities,
     postUserActivities,
     getUserActivitiesFromDB, pinActivity, unpinActivities, nameTrip, formatNumber, convertToKm, shortenText,
-    putDashboardToken, getDashboardURL
+    putDashboardToken, getDashboardURL, REACT_APP_GOOGLE_API_KEY
 } from "../utils/functions";
 import {useNavigate} from "react-router-dom";
 import {
+    setAltitudes,
     setExternal,
     setTripActivities,
     setTripName,
@@ -37,6 +38,7 @@ import WorldMap from "../components/WorldMap";
 import {ToastContainer, toast, Slide} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FabComponent } from '@syncfusion/ej2-react-buttons';
+import polyline from "@mapbox/polyline";
 
 
 
@@ -192,11 +194,10 @@ const Dashboard = (props) => {
         props.setZoomeds(zoomeds);
     };
 
-
-    const handleTripClick = (index) => {
+    const handleTripClick = async (index) => {
         props.setTripActivities(trips[index].activities);
         props.setTripName(nameTrip(trips[index]));
-        navigate("/trip_view")
+        navigate("/trip_view");
     };
 
     const activityRefs = useRef([]);
@@ -407,6 +408,7 @@ const mapDispatchToProps = {
     setTripActivities,
     setTripName,
     setExternal,
+    setAltitudes,
     setUsersummary
 };
 

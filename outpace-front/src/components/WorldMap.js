@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from "react";
 import {Map, GeoJson} from "pigeon-maps";
 import {
-    centerZoomFromLocations, concatCoords,
-    getGeoJsonContainingLatLng,
+    centerZoomFromLocations, concatCoords, getExtremeLocations,
+    getGeoJsonContainingLatLng, getProvider,
     isPointInGeoJson,
     mapboxProviderDark
 } from "../utils/functions";
@@ -45,9 +45,9 @@ function rankingAlpha(counts, index, maxim) {
 }
 
 function WorldMap({activities}) {
-    const geoJson = useGeoJson();
+    const geoJsonQuebec = useGeoJson();
     // Don't try to use geoJson until it's defined
-    if (!geoJson) {
+    if (!geoJsonQuebec) {
         return <div>Loading...</div>;
     }
     const mapWidth = window.innerWidth * .8;
@@ -60,15 +60,15 @@ function WorldMap({activities}) {
             const activityCoordinates = polyline.decode(activity.summary_polyline).map(([lng, lat]) => [lat, lng]);
             const start = activityCoordinates[0];
             let geoStart;
-            if (isPointInGeoJson(start[1], start[0], geoJson))
-                geoStart = geoJson;
+            if (isPointInGeoJson(start[1], start[0], geoJsonQuebec))
+                geoStart = geoJsonQuebec;
             else {
                 geoStart = getGeoJsonContainingLatLng(start[1], start[0])
             }
             const ind = includes(geos, geoStart);
             if (ind === -1) {
                 geos.push(geoStart);
-                combinedCoords = [...combinedCoords, ...concatCoords(geoStart)];
+                combinedCoords = [...combinedCoords, ...getExtremeLocations(concatCoords(geoStart))];
                 counts.push(1);
             } else {
                 counts[ind]++;
@@ -88,7 +88,7 @@ function WorldMap({activities}) {
                  height={mapHeight}
                  defaultCenter={[center[1], center[0]]}
                  defaultZoom={zoom}
-                 provider={mapboxProviderDark}
+                 provider={getProvider()}
                  twoFingerDrag={false}
                  mouseEvents={false}>
                 {geos?.map((geo, index) => (
