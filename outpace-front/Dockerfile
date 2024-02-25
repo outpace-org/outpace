@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN npm install
 RUN npm install -g ionic
 COPY . .
-RUN node --max-old-space-size=32000 $(which npm) run build
+RUN node --max-old-space-size=8192 $(which npm) run build
 
 # Use a new stage to create a lean production image
 FROM node:18 as production
