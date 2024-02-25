@@ -14,5 +14,6 @@ COPY package*.json ./
 RUN npm install --only=production
 COPY --from=build /app/build ./build
 COPY --from=build /app/public ./public
+COPY --from=build /app/src ./src
 EXPOSE 3000
 CMD ["npm", "start"]
