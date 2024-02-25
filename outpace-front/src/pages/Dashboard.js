@@ -35,16 +35,20 @@ import {
   faArrowRight,
   faRunning,
   faBicycle,
-  faShareAlt,
   faCheck,
   faLevelUpAlt,
+  faSadCry,
+  faThumbTack,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBan } from "@fortawesome/free-solid-svg-icons";
 import WorldMap from "../components/WorldMap";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FabComponent } from "@syncfusion/ej2-react-buttons";
+import Fab from "@mui/material/Fab";
+import ShareIcon from "@mui/icons-material/Share";
+import { Dialog, DialogContent } from "@mui/material";
+import Activity from "../components/Activity";
 
 const LeftArrowButton = styled.button`
   position: absolute;
@@ -164,7 +168,7 @@ const Dashboard = (props) => {
   const handleShareClick = async () => {
     putDashboardToken(strava_id).then(async (dashboard) => {
       console.log("dash", dashboard);
-      if (dashboard.token) {
+      if (dashboard && dashboard.token) {
         await navigator.clipboard.writeText(getDashboardURL(dashboard.token));
         toast.info(
           <>
@@ -186,7 +190,7 @@ const Dashboard = (props) => {
       } else {
         toast.error(
           <>
-            <FontAwesomeIcon icon={"face-sad-cry"} />
+            <FontAwesomeIcon icon={faSadCry} />
             There was a problem with your share link
           </>,
           {
@@ -219,6 +223,7 @@ const Dashboard = (props) => {
   const activityRefs = useRef([]);
 
   const scrollLeft = () => {
+    console.log("scrolling left")
     if (activityRefs.current[0]) {
       const marginRight = parseFloat(
         window.getComputedStyle(activityRefs.current[0]).marginRight,
@@ -232,6 +237,7 @@ const Dashboard = (props) => {
   };
 
   const scrollRight = () => {
+    console.log("scrolling right")
     if (activityRefs.current[0]) {
       const marginRight = parseFloat(
         window.getComputedStyle(activityRefs.current[0]).marginRight,
@@ -257,6 +263,18 @@ const Dashboard = (props) => {
     await removePinnedActivities();
     closeDialog();
     navigate("/redirectDB");
+  };
+
+  const [pinnedActivityOpen, setPinnedActivityOpen] = useState(false);
+  const [currentPinnedActivity, setCurrentPinnedActivity] = useState(null);
+
+  const handleClickOpen = (activity) => {
+    setCurrentPinnedActivity(activity);
+    setPinnedActivityOpen(true);
+  };
+
+  const handleClosePinnedActivity = () => {
+    setPinnedActivityOpen(false);
   };
 
   return (
@@ -287,7 +305,9 @@ const Dashboard = (props) => {
         </div>
       ))}
       <div style={{ paddingTop: "2em", position: "relative" }}>
-        <h1 style={{ textAlign: "center" }}>{name} pinned activities</h1>
+        <h1 style={{ textAlign: "center" }}>
+          {name} pinned activities <FontAwesomeIcon icon={faThumbTack} />
+        </h1>
         {!external && pinnedActivities?.length > 0 && (
           <button
             onClick={openDialog}
@@ -332,7 +352,6 @@ const Dashboard = (props) => {
           className="pinnedContainer"
           ref={scrollContainerRef}
           style={{
-            padding: "10px",
             display: "flex",
             overflowX: "auto",
             backgroundColor: "whitesmoke",
@@ -342,10 +361,23 @@ const Dashboard = (props) => {
             pinnedActivities.map((activity, index) => (
               <div
                 key={index}
-                style={{ flex: "0 0 auto", marginRight: "1em" }}
                 ref={(el) => (activityRefs.current[index] = el)}
+                style={{
+                  flex: "0 0 auto",
+                  padding: "1em",
+                  marginRight: "1em",
+                  backgroundColor: "whitesmoke",
+                  transition: "background-color 0.1s ease",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "lightgrey")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "whitesmoke")
+                }
+                onClick={() => handleClickOpen(activity)}
               >
-                <SmallActivity activity={activity} />
+                  <SmallActivity activity={activity} />
               </div>
             ))
           ) : (
@@ -353,6 +385,17 @@ const Dashboard = (props) => {
               {name} pinned activities will appear here
             </div>
           )}
+
+          <Dialog
+            open={pinnedActivityOpen}
+            onClose={handleClosePinnedActivity}
+            fullWidth={true}
+            maxWidth="md"
+          >
+            <DialogContent>
+              <Activity activity={currentPinnedActivity} />
+            </DialogContent>
+          </Dialog>
           {isOverflowing && (
             <LeftArrowButton onClick={scrollLeft} style={{ left: 0 }}>
               <FontAwesomeIcon icon={faArrowLeft} />
@@ -438,18 +481,33 @@ const Dashboard = (props) => {
         pauseOnHover
         theme="light"
       />
-      {!external && (
-        <FabComponent
-          id="fab"
-          style={{ backgroundColor: "#0800ff" }}
-          onClick={handleShareClick}
-        >
-          <FontAwesomeIcon icon={faShareAlt} />
-        </FabComponent>
-      )}
+      {!external && FloatingActionButton(handleShareClick)}
     </div>
   );
 };
+
+const styles = {
+  fab: {
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+  },
+};
+
+function FloatingActionButton(funClick) {
+  return (
+    <div>
+      <Fab
+        color="primary"
+        aria-label="add"
+        style={styles.fab}
+        onClick={funClick}
+      >
+        <ShareIcon />
+      </Fab>
+    </div>
+  );
+}
 
 function ActivityRanking({ crit, activities }) {
   return (
