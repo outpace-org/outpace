@@ -371,15 +371,14 @@ export async function fetchNewActivities(strava_id) {
   return activities;
 }
 
-// export function getProvider(dark) {
-//   if (!dark)
-//     return process.env.NODE_ENV !== "development" ? mapboxProvider : undefined;
-//   else
-//     return process.env.NODE_ENV !== "development"
-//       ? mapboxProviderDark
-//       : undefined;
-// }
-
+//export function getProvider(dark) {
+//  if (!dark)
+//    return process.env.NODE_ENV !== "development" ? mapboxProvider : undefined;
+//  else
+//    return process.env.NODE_ENV !== "development"
+//      ? mapboxProviderDark
+//      : undefined;
+//}
 export function getProvider(dark) {
   if (!dark)
     return mapboxProvider;
