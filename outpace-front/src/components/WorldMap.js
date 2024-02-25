@@ -89,7 +89,7 @@ function WorldMap({ activities }) {
         height={mapHeight}
         defaultCenter={[center[1], center[0]]}
         defaultZoom={zoom}
-        provider={getProvider()}
+        provider={getProvider(true)}
         twoFingerDrag={false}
         mouseEvents={false}
       >
