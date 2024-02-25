@@ -2,10 +2,9 @@
 FROM node:18 as build
 WORKDIR /app
 COPY package*.json ./
-RUN node --max-old-space-size=8000 $(which npm) install
-RUN npm install -g ionic
+RUN npm install
 COPY . .
-RUN node --max-old-space-size=16000 $(which npm) run build
+RUN node --max-old-space-size=8192 $(which npm) run build
 
 # Use a new stage to create a lean production image
 FROM node:18 as production

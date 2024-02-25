@@ -6,8 +6,7 @@ import {
 } from "@turf/helpers";
 import turfBbox from "@turf/bbox";
 import geoViewport from "@mapbox/geo-viewport";
-import geoJson from "world-geojson";
-import getMap from "@geo-maps/countries-maritime-10m";
+import getMap from "@geo-maps/countries-maritime-50m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
 import * as turf from "@turf/turf";
@@ -452,11 +451,6 @@ export function index(arr, val) {
   else return -1;
 }
 
-export function getGeoJsonFromCountry(country) {
-  return country === "United States"
-    ? geoJson.forCountry("USA")
-    : geoJson.forCountry(country);
-}
 let worldLookup = null;
 export function getGeoJsonContainingLatLng(lat, lng) {
   if (worldLookup === null) {
