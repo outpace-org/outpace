@@ -16,8 +16,6 @@ print('Connecting to database', DB_NAME)
 
 SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
 
-print(SQLALCHEMY_DATABASE_URI)
-
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
