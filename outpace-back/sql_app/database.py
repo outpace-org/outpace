@@ -12,7 +12,7 @@ host = os.getenv('OUTPACE_HOST')
 port = os.getenv('OUTPACE_PORT')
 DB_NAME = os.getenv('OUTPACE_DB')
 
-print("connecting", username, password, host, port, DB_NAME)
+print('Connecting to database', DB_NAME)
 
 SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{DB_NAME}"
 
