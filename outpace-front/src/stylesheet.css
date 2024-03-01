@@ -239,6 +239,27 @@
   text-decoration: none;
   color: #0800ff !important;
 }
+.homeButtonStyle {
+  display: block;
+  width: 14em;
+  height: auto;
+  background-color: lightgrey;
+  color: black;
+  border-radius: 10px;
+  padding: 7px;
+  border: none;
+  cursor: pointer;
+  font-size: 2em;
+  transition: background-color 0.1s ease;
+  margin: 0 auto;
+  margin-top: 1em;
+  box-sizing: border-box;
+}
+
+.buttonStyle:hover {
+  background-color: grey;
+}
+
 
 .fixed-container {
   max-width: 30em;

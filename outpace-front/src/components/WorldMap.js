@@ -28,7 +28,7 @@ function rankingAlpha(counts, index, maxim) {
   return Math.sqrt(0.1 + 0.8 * (counts[index] / maxim));
 }
 
-function WorldMap({ activities }) {
+function WorldMap({ activities, name }) {
   const geoJsonQuebec = useGeoJson();
   // Don't try to use geoJson until it's defined
   if (!geoJsonQuebec) {
@@ -83,7 +83,7 @@ function WorldMap({ activities }) {
         paddingTop: "3em",
       }}
     >
-      <h1>Your heatmap</h1>
+      <h1>{} heatmap</h1>
       <Map
         width={mapWidth}
         height={mapHeight}

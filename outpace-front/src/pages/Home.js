@@ -5,12 +5,14 @@ import roadLogo from "../assets/road.png";
 
 import {
   getStravaId,
-  REACT_APP_CLIENT_ID,
+  REACT_APP_CLIENT_ID, REACT_APP_DEMO_TOKEN,
   REACT_APP_WEB_URL,
 } from "../utils/functions";
 import { useNavigate } from "react-router-dom";
 import { connect } from "react-redux";
 import { setExternal, setUserId } from "../actions";
+import {faStrava} from "@fortawesome/free-brands-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const URL = `${REACT_APP_WEB_URL}/redirect`;
 
@@ -38,6 +40,10 @@ const Home = (props) => {
     }
   };
 
+  function handleDemo() {
+    navigate(`/redirectDashboard?token=${REACT_APP_DEMO_TOKEN}`);
+  }
+
   return (
     <div className="d-flex justify-content-center align-items-center text-center content-body">
       <div className="mt-5">
@@ -53,29 +59,26 @@ const Home = (props) => {
           Create your athlete CV !
         </h2>
 
-        <div
-          style={{
-            backgroundColor: "lightgrey",
-            borderRadius: "10px",
-            display: "inline-block",
-            padding: "7px",
-            transition: "background-color 0.1s ease",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "whitesmoke")
+        <button
+          className="homeButtonStyle"
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "grey")}
+          onMouseOut={(e) =>
+            (e.currentTarget.style.backgroundColor = "lightgrey")
           }
+          onClick={handleLogin}
+        >
+          Connect with Strava ! <FontAwesomeIcon icon={faStrava}/>
+        </button>
+        <button
+          className="homeButtonStyle"
+          onClick={handleDemo}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "grey")}
           onMouseOut={(e) =>
             (e.currentTarget.style.backgroundColor = "lightgrey")
           }
         >
-          <img
-            src={loginImage}
-            onClick={handleLogin}
-            alt="login"
-            className="login-button"
-            style={{ width: "20em" }}
-          />
-        </div>
+          See a demo !
+        </button>
       </div>
     </div>
   );
