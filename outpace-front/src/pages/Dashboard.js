@@ -429,7 +429,7 @@ const Dashboard = (props) => {
           ))}
         </Modal>
       </div>
-      <WorldMap activities={userActivities} />
+      <WorldMap activities={userActivities} name={name} />
       <h1 style={{ paddingTop: "2em", textAlign: "center" }}>
         {name} activities ranked
       </h1>

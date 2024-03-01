@@ -98,11 +98,11 @@ const DBRedirect = (props) => {
         window.location = `http://www.strava.com/oauth/authorize?client_id=${REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${URL}/exchange_token&approval_prompt=force&scope=${scope}`;
       } else {
         console.log("there");
-        props.setExternal(externalOrigin);
-        props.setUserTrips(userTrips);
-        props.setPinnedActivities(pinnedActivities);
-        props.setUserActivities(activities);
-        props.setDistanceRides(rankedActivities);
+        props.setExternal(externalOrigin ?? null);
+        props.setUserTrips(userTrips ?? []);
+        props.setPinnedActivities(pinnedActivities ?? []);
+        props.setUserActivities(activities ?? []);
+        props.setDistanceRides(rankedActivities ?? []);
         navigate("/dashboard");
       }
     });

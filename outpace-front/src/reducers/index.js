@@ -1,5 +1,4 @@
 import { combineReducers } from "redux";
-import { setExternal } from "../actions";
 
 const setUserProfileReducer = (user = null, action) => {
   switch (action.type) {
@@ -19,7 +18,7 @@ const setUserName = (name = null, action) => {
   }
 };
 
-const setUserTripsReducer = (userTrips = null, action) => {
+const setUserTripsReducer = (userTrips = [], action) => {
   switch (action.type) {
     case "SET_USER_TRIPS":
       return action.payload;
