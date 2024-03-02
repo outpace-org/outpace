@@ -1,6 +1,7 @@
 from typing import Optional, List
 
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from . import models
 from . import schemas
 
@@ -111,7 +112,10 @@ def get_dashboard_by_token(db: Session, token: str):
 
 
 def get_activities_by_strava_id(db: Session, strava_id: int, exclude: Optional[List[int]] = None):
-    query = db.query(models.Activity).filter(models.Activity.strava_id == strava_id)
+    query = (db.query(models.Activity)
+             .filter(models.Activity.strava_id == strava_id)
+             .filter(func.array_length(models.Activity.start_latlng, 1) == 2)
+             .filter(func.array_length(models.Activity.end_latlng, 1) == 2))
     if exclude:
         query = query.filter(~models.Activity.id.in_(exclude))
     activities = query.order_by(models.Activity.start_date).all()
