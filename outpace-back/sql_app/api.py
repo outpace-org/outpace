@@ -108,7 +108,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
         db_activity = crud.get_activity(db, activity_id=activity.id)
         if db_activity:
             raise HTTPException(status_code=400, detail="Activity ID already registered")
-        if activity.type in ["Run", "Ride"]:
+        if activity.type in ["Run", "Ride"] and len(activity.start_latlng) == 2 == len(activity.end_latlng) == 2:
             activity_cpy = schemas.ActivityBase(id=activity.id, strava_id=activity.athlete.id,
                                                 total_elevation_gain=activity.total_elevation_gain,
                                                 elapsed_time=activity.elapsed_time, name=activity.name,
@@ -321,6 +321,18 @@ def read_trips_by_strava_id(strava_id: int, db: Session = Depends(get_db)):
     if not db_trips:
         raise HTTPException(status_code=404, detail="No trips found for this strava_id")
     return db_trips
+
+
+@app.get("/trips/computation/{strava_id}")
+def compute_trips(strava_id: int, db: Session = Depends(get_db)):
+    db_activities = crud.get_activities_by_strava_id(db, strava_id)
+    db_dash = crud.get_dashboard(db, strava_id)
+    if not db_activities or not db_dash:
+        raise HTTPException(status_code=404, detail="No activities or dashboard found for this strava_id")
+    process_activities(db_activities, db_dash.id, db)
+    return {"message": "Trips created successfully"}
+
+
 
 
 @app.get("/activities/ranked/{strava_id}/{act_type}/{criteria}", response_model=List[schemas.ActivityBase])
