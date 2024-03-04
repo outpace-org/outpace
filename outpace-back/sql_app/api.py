@@ -106,9 +106,7 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
         if db_refresh_token is None:
             raise HTTPException(status_code=404, detail="RefreshToken not found")
         db_activity = crud.get_activity(db, activity_id=activity.id)
-        if db_activity:
-            raise HTTPException(status_code=400, detail="Activity ID already registered")
-        if activity.type in ["Run", "Ride"] and len(activity.start_latlng) == 2 == len(activity.end_latlng) == 2:
+        if not db_activity and activity.type in ["Run", "Ride"] and len(activity.start_latlng) == 2 == len(activity.end_latlng) == 2:
             activity_cpy = schemas.ActivityBase(id=activity.id, strava_id=activity.athlete.id,
                                                 total_elevation_gain=activity.total_elevation_gain,
                                                 elapsed_time=activity.elapsed_time, name=activity.name,
