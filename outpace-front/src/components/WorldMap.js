@@ -83,7 +83,7 @@ function WorldMap({ activities, name }) {
         paddingTop: "3em",
       }}
     >
-      <h1>{} heatmap</h1>
+      <h1>{name} heatmap</h1>
       <Map
         width={mapWidth}
         height={mapHeight}
