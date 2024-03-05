@@ -37,6 +37,12 @@ jobs:
       run: |
         cd back
         python -m pytest tests/
+      env:
+        TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
+        TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+        TEST_DB_HOST: ${{ secrets.TEST_DB_HOST }}
+        TEST_DB_PORT: ${{ secrets.TEST_DB_PORT }}
+        TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
 
     - name: Build and push backend image
       uses: docker/build-push-action@v2
