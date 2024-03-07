@@ -1,7 +1,7 @@
 version: '3'
 services:
   frontend:
-    build: ./outpace-front
+    build: ./front
     ports:
       - '3000:3000'
     depends_on:
@@ -13,8 +13,9 @@ services:
       REACT_APP_MAPBOX_ACCESS_TOKEN: ${REACT_APP_MAPBOX_ACCESS_TOKEN}
       REACT_APP_ION_DEFAULT_ACCESS_TOKEN: ${REACT_APP_ION_DEFAULT_ACCESS_TOKEN}
       REACT_APP_WEB_URL: ${REACT_APP_WEB_URL}
+      REACT_APP_DEMO_TOKEN: ${REACT_APP_DEMO_TOKEN}
   backend:
-    build: ./outpace-back
+    build: ./back
     ports:
       - '8000:8000'
     networks:
