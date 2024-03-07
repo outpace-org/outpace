@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import List, Dict, Tuple, Optional
+from typing import List
 from fastapi import Depends, FastAPI, HTTPException, BackgroundTasks, Query
 from sqlalchemy.orm import Session, aliased
 from sqlalchemy import select, func
@@ -32,6 +32,8 @@ app.add_middleware(
 
 geolocator = Nominatim(user_agent="outpace")
 
+def init_db():
+    models.Base.metadata.create_all(bind=database.engine)
 
 # Dependency
 def get_db():
