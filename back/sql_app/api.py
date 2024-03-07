@@ -14,8 +14,6 @@ from geopy.geocoders import Nominatim
 
 from .schemas import ActivityInfo
 
-models.Base.metadata.create_all(bind=database.engine)
-
 app = FastAPI()
 
 origins = [
