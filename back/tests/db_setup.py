@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 def setup_function():
     # Load environment variables from your .env file
-    load_dotenv('.env')
+    load_dotenv('tests/.env')
 
     # Get the database credentials from environment variables
     username = os.getenv('TEST_DB_USERNAME')
@@ -15,12 +15,12 @@ def setup_function():
     db_name = os.getenv('TEST_DB_NAME')
 
     TEST_SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{db_name}"
-    print(TEST_SQLALCHEMY_DATABASE_URI)
+    print("le uriiiiiii", TEST_SQLALCHEMY_DATABASE_URI)
     test_engine = create_engine(TEST_SQLALCHEMY_DATABASE_URI)
     TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
     # Insert mock data
-    with open('data/mock_data.sql', 'r', encoding='utf-8') as f:
+    with open('tests/data/mock_data.sql', 'r', encoding='utf-8') as f:
         sql_commands = f.read().split(';')
         with test_engine.begin() as connection:
             for command in sql_commands:
