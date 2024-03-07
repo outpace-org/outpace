@@ -31,11 +31,12 @@ app.add_middleware(
 geolocator = Nominatim(user_agent="outpace")
 
 def init_db():
-    models.Base.metadata.create_all(bind=database.engine)
-
+    engine, _ = database.get_database_engine_and_session()
+    models.Base.metadata.create_all(bind=engine)
 # Dependency
 def get_db():
-    db = database.SessionLocal()
+    _, SessionLocal = database.get_database_engine_and_session()
+    db = SessionLocal()
     try:
         yield db
     finally:
