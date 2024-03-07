@@ -10,6 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: ${{ secrets.TEST_DB_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.TEST_DB_NAME }}
+        ports:
+          - ${{ secrets.TEST_DB_PORT }}:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -40,7 +51,7 @@ jobs:
       env:
         TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
         TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-        TEST_DB_HOST: ${{ secrets.TEST_DB_HOST }}
+        TEST_DB_HOST: localhost
         TEST_DB_PORT: ${{ secrets.TEST_DB_PORT }}
         TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
 
