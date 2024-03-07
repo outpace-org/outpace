@@ -14,8 +14,8 @@ def setup_function():
     port = os.getenv('TEST_DB_PORT')
     db_name = os.getenv('TEST_DB_NAME')
 
-    TEST_SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:{port}/{db_name}"
-    print("le uriiiiiii", TEST_SQLALCHEMY_DATABASE_URI)
+    TEST_SQLALCHEMY_DATABASE_URI = f"postgresql://{username}:{password}@{host}:5432/{db_name}"
+    print("URIIIIIIIII", TEST_SQLALCHEMY_DATABASE_URI)
     test_engine = create_engine(TEST_SQLALCHEMY_DATABASE_URI)
     TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
 
