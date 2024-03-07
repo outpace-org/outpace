@@ -46,6 +46,7 @@ jobs:
 
     - name: Set up PostgreSQL service
       run: |
+        psql -h localhost -U ${{ secrets.TEST_DB_USERNAME }} -c "DROP DATABASE IF EXISTS ${{ secrets.TEST_DB_NAME }};"
         psql -h localhost -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
