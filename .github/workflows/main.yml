@@ -51,7 +51,7 @@ jobs:
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
 
-        - name: Run backend unit tests
+    - name: Run backend unit tests
       run: |
         cd back
         ./run_tests.sh ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_NAME }}
