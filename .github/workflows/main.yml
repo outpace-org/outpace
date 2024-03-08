@@ -51,6 +51,9 @@ jobs:
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
 
+    - name: Provide execute permission to the script
+      run: chmod +x back/run_tests.sh    
+
     - name: Run backend unit tests
       run: |
         cd back
