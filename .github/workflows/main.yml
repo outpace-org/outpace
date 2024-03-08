@@ -22,6 +22,16 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
+    - name: Wait for PostgreSQL to become ready
+      run: sleep 10
+
+    - name: Set up PostgreSQL service
+      run: |
+        psql -h postgres -U ${{ secrets.TEST_DB_USERNAME }} -c "DROP DATABASE IF EXISTS ${{ secrets.TEST_DB_NAME }};"
+        psql -h postgres -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
+      env:
+        PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
+      
     - name: Checkout code
       uses: actions/checkout@v2
 
@@ -44,20 +54,13 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PW }}
 
-    - name: Set up PostgreSQL service
-      run: |
-        psql -h localhost -U ${{ secrets.TEST_DB_USERNAME }} -c "DROP DATABASE IF EXISTS ${{ secrets.TEST_DB_NAME }};"
-        psql -h localhost -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
-      env:
-        PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-
     - name: Provide execute permission to the script
       run: chmod +x back/run_tests.sh    
 
     - name: Run backend unit tests
       run: |
         cd back
-        ./run_tests.sh ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_NAME }}
+        ./run_tests.sh ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_NAME }} postgres
       env:
         TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
         TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
