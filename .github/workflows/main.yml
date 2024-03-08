@@ -27,8 +27,8 @@ jobs:
 
     - name: Set up PostgreSQL service
       run: |
-        psql -h postgres -U ${{ secrets.TEST_DB_USERNAME }} -c "DROP DATABASE IF EXISTS ${{ secrets.TEST_DB_NAME }};"
-        psql -h postgres -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
+        psql -h ${{ secrets.TEST_DB_HOST }} -U ${{ secrets.TEST_DB_USERNAME }} -c "DROP DATABASE IF EXISTS ${{ secrets.TEST_DB_NAME }};"
+        psql -h ${{ secrets.TEST_DB_HOST }} -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
       
@@ -60,7 +60,7 @@ jobs:
     - name: Run backend unit tests
       run: |
         cd back
-        ./run_tests.sh ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_NAME }} postgres
+        ./run_tests.sh ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_NAME }} ${{ secrets.TEST_DB_HOST }}
       env:
         TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
         TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
