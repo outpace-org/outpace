@@ -1,12 +1,11 @@
 import os
-import pgdumplib
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+#from dotenv import load_dotenv
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 def setup_function():
     # Load environment variables from your .env file
-    load_dotenv('tests/.env')
+    #load_dotenv('tests/.env')
 
     # Get the database credentials from environment variables
     username = os.getenv('TEST_DB_USERNAME')
