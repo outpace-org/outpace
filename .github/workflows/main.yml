@@ -95,3 +95,18 @@ jobs:
         REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
         REACT_APP_ION_DEFAULT_ACCESS_TOKEN: ${{ secrets.REACT_APP_ION_DEFAULT_ACCESS_TOKEN }}
         REACT_APP_WEB_URL: ${{ secrets.REACT_APP_WEB_URL }}
+
+    - name: Install sshpass
+      run: sudo apt-get install -y sshpass
+
+    - name: Deploy on server
+      run: |
+        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "
+          cd app/outpace-dock/
+          ./deploy.sh
+        "
+      env:
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
