@@ -101,12 +101,12 @@ jobs:
 
     - name: Deploy on server
       run: |
-        sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDRESS }} "
-          cd app/outpace-dock/
+        sshpass -p ${{ secrets.SERV_PASSWD }} ssh -o StrictHostKeyChecking=no ${{ secrets.SERV_USER }}@${{ secrets.SERV_IPV4 }} "
+          cd apps/outpace-dock/
           ./deploy.sh
         "
       env:
-        SERVER_USER: ${{ secrets.SERVER_USER }}
-        SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-        SERVER_ADDRESS: ${{ secrets.SERVER_ADDRESS }}
+        SERVER_USER: ${{ secrets.SERV_USER }}
+        SERVER_PASSWORD: ${{ secrets.SERV_PASSWD }}
+        SERVER_ADDRESS: ${{ secrets.SERV_IPV4 }}
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
