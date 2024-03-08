@@ -21,13 +21,13 @@ def test_get_dashboard():
     response = client.get("/dashboard/53012872")
     content = response.json()
 
-    assert content["name"] == "toto"
+    assert content["name"] == "Tom dem"
     assert response.status_code == 200
 
     response = client.get("/dashboard/95047171")
     content = response.json()
 
-    assert content["name"] == "roman"
+    assert content["name"] == "Roman Bessouat"
     assert response.status_code == 200
 
     response = client.get("/dashboard/999")

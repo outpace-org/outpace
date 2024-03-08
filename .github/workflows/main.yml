@@ -51,16 +51,17 @@ jobs:
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
 
-    - name: Run backend unit tests
+        - name: Run backend unit tests
       run: |
         cd back
-        python -m pytest tests/
+        ./run_tests.sh ${{ secrets.TEST_DB_USERNAME }} ${{ secrets.TEST_DB_PASSWORD }} ${{ secrets.TEST_DB_NAME }}
       env:
         TEST_DB_USERNAME: ${{ secrets.TEST_DB_USERNAME }}
         TEST_DB_PASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
         TEST_DB_HOST: localhost
         TEST_DB_PORT: 5432
         TEST_DB_NAME: ${{ secrets.TEST_DB_NAME }}
+
 
     - name: Build and push backend image
       uses: docker/build-push-action@v2
