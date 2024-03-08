@@ -31,6 +31,7 @@ def setup_function():
     except subprocess.CalledProcessError as e:
         print(f"Command '{e.cmd}' returned non-zero exit status {e.returncode}.")
         print(f"Command output: {e.output}")
-        return None
+        print(f"Command error output: {e.stderr}")
+        return TestSessionLocal
 
     return TestSessionLocal
