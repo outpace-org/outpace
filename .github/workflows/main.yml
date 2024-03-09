@@ -46,6 +46,9 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
     - name: Wait for PostgreSQL to become ready
       run: sleep 10
 
@@ -55,12 +58,6 @@ jobs:
         psql -h ${{ secrets.TEST_DB_HOST }} -U ${{ secrets.TEST_DB_USERNAME }} -c "CREATE DATABASE ${{ secrets.TEST_DB_NAME }};"
       env:
         PGPASSWORD: ${{ secrets.TEST_DB_PASSWORD }}
-
-    - name: Print working directory
-      run: |
-        pwd
-        ls -la
-
 
     - name: Run backend unit tests
       run: |
@@ -77,6 +74,9 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      
     - name: Build and push backend image
       uses: docker/build-push-action@v2
       with:
