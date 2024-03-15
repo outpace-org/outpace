@@ -431,7 +431,7 @@ const Dashboard = (props) => {
       </div>
       <WorldMap activities={userActivities} name={name} />
       <h1 style={{ paddingTop: "2em", textAlign: "center" }}>
-        {name} activities ranked
+        {name} biggest activities
       </h1>
       <div
         style={{
@@ -466,7 +466,7 @@ const Dashboard = (props) => {
           onClick={handleButtonClick}
           style={{ marginLeft: "1em", display: "block", margin: "2em auto" }}
         >
-          Fetch new activities from Strava <FontAwesomeIcon icon={faStrava} />
+          Fetch new activities from Strava <FontAwesomeIcon icon={faStrava} style={{ color: "#ee5535" }} />
         </button>
       )}
       <ToastContainer

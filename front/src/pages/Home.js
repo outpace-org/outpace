@@ -67,7 +67,7 @@ const Home = (props) => {
           }
           onClick={handleLogin}
         >
-          Connect with Strava ! <FontAwesomeIcon icon={faStrava}/>
+          Connect with Strava ! <FontAwesomeIcon icon={faStrava} style={{ color: "#ee5535" }} />
         </button>
         <button
           className="homeButtonStyle"
