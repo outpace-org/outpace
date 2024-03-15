@@ -114,7 +114,8 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
                                                 distance=activity.distance,
                                                 start_latlng=activity.start_latlng, end_latlng=activity.end_latlng,
                                                 start_date=activity.start_date,
-                                                type=activity.type, summary_polyline=activity.map.summary_polyline,
+                                                type=activity.type if activity.type != "Hike" else "Run",
+                                                summary_polyline=activity.map.summary_polyline,
                                                 pinned=None, elevations=None)
             db_activity = crud.create_activity(db, activity_cpy)
             db_activities.append(db_activity)
