@@ -12,6 +12,7 @@ import {
   REACT_APP_GOOGLE_API_KEY,
 } from "../utils/functions";
 import { addAltitudeToGeoJson } from "../utils/ElevationComputation";
+import haversine from 'haversine-distance'
 
 const polyline = require("@mapbox/polyline");
 
@@ -74,13 +75,29 @@ function Activity({ activity }) {
     features: geoWithElevations.features.map((feature, i) => {
       const coordinate = feature.geometry.coordinates[0];
       const nextCoordinate = feature.geometry.coordinates[1];
+      const dist = haversine({latitude: coordinate[0], longitude: coordinate[1]},
+          {latitude: nextCoordinate[0], longitude: nextCoordinate[1]})
       const diff = nextCoordinate[2] - coordinate[2];
+      const grad = Math.abs(diff/dist) * 100; //gradient in %
       let color;
       if (diff > 0) {
         //going up
-        color = `rgb(${Math.abs(Math.min(255, 10 * (nextCoordinate[2] - coordinate[2])))}, 0, 0)`;
+        if (grad < 3)
+          color = `rgb(0, 0, 0)`;
+        else if (grad < 5)
+          color = `rgb(255, 0, 0)`;
+        else if (grad < 8)
+          color = `rgb(133, 8, 8)`;
+        else
+          color = 'rgb(98,2,76)'
       } else {
-        color = `rgb(0, ${Math.abs(Math.min(255, 10 * (nextCoordinate[2] - coordinate[2])))}, 0)`;
+        //going down
+        if (grad < 3)
+          color = `rgb(0, 0, 0)`;
+        else if (grad < 5)
+          color = `rgb(0, 125, 0)`;
+        else
+          color = `rgb(0, 255, 0)`;
       }
       return {
         type: "Feature",

@@ -18,6 +18,8 @@ import {
 import { connect, useSelector } from "react-redux";
 import { setZoomeds } from "../actions";
 import {faStrava} from "@fortawesome/free-brands-svg-icons";
+import {faLevelUpAlt} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 var polyline = require("@mapbox/polyline");
 
@@ -127,11 +129,15 @@ function Trip({ trip, index, onButtonClick }) {
       <div className="column33">
         {/*<h2>Trip #{index + 1}</h2>*/}
         <h2>{nameTrip(trip)}</h2>
-        <p>Total Elevation Gain: {totalElevationGainDisplay}m</p>
-        <p>Distance: {totalDistanceDisplay}km</p>
-        <p>Duration: {duration} days</p>
+        <div style={{marginLeft: '2em'}}>
+          <p>{duration} days</p>
+          <p>{totalDistanceDisplay}km</p>
+          <p>{totalElevationGainDisplay}m <FontAwesomeIcon
+              icon={faLevelUpAlt}
+          /></p>
+        </div>
       </div>
-      <div className="column66" style={{ position: "relative" }}>
+      <div className="column66" style={{position: "relative"}}>
 
         <Map
             width={mapWidth}

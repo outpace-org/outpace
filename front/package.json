@@ -29,6 +29,7 @@
     "crypto-browserify": "^3.12.0",
     "geojson-geometries-lookup": "^0.5.0",
     "geolib": "^3.3.4",
+    "haversine-distance": "^1.2.1",
     "https-browserify": "^1.0.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
