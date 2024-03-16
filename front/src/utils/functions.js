@@ -560,3 +560,27 @@ export function getExtremeLocations(coords) {
     [bounds.maxLng, bounds.minLat],
   ];
 }
+
+export function computeColorFromGrad(diff, grad) {
+  let color;
+  if (diff > 0) {
+    //going up
+    if (grad < 3)
+      return `rgb(0, 0, 0)`;
+    else if (grad < 5)
+      return `rgb(255, 0, 0)`;
+    else if (grad < 8)
+      return `rgb(169, 2, 2)`;
+    else
+      return 'rgb(147,5,115)'
+  } else {
+    //going down
+    if (grad < 3)
+      return `rgb(0, 0, 0)`;
+    else if (grad < 5)
+      return `rgb(0, 125, 0)`;
+    else
+      return `rgb(0, 255, 0)`;
+  }
+}
+

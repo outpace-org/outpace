@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Map, Marker, GeoJson } from "pigeon-maps";
 import {
   addElevationsToActivity,
-  centerZoomFromLocations,
+  centerZoomFromLocations, computeColorFromGrad,
   convertToKm,
   formatDate,
   formatNumber,
@@ -15,6 +15,7 @@ import { addAltitudeToGeoJson } from "../utils/ElevationComputation";
 import haversine from 'haversine-distance'
 
 const polyline = require("@mapbox/polyline");
+
 
 function Activity({ activity }) {
   const [geoWithElevations, setGeoWithElevations] = useState(null);
@@ -75,30 +76,11 @@ function Activity({ activity }) {
     features: geoWithElevations.features.map((feature, i) => {
       const coordinate = feature.geometry.coordinates[0];
       const nextCoordinate = feature.geometry.coordinates[1];
-      const dist = haversine({latitude: coordinate[0], longitude: coordinate[1]},
-          {latitude: nextCoordinate[0], longitude: nextCoordinate[1]})
+      const dist = haversine({latitude: coordinate[1], longitude: coordinate[0]},
+          {latitude: nextCoordinate[1], longitude: nextCoordinate[0]})
       const diff = nextCoordinate[2] - coordinate[2];
       const grad = Math.abs(diff/dist) * 100; //gradient in %
-      let color;
-      if (diff > 0) {
-        //going up
-        if (grad < 3)
-          color = `rgb(0, 0, 0)`;
-        else if (grad < 5)
-          color = `rgb(255, 0, 0)`;
-        else if (grad < 8)
-          color = `rgb(133, 8, 8)`;
-        else
-          color = 'rgb(98,2,76)'
-      } else {
-        //going down
-        if (grad < 3)
-          color = `rgb(0, 0, 0)`;
-        else if (grad < 5)
-          color = `rgb(0, 125, 0)`;
-        else
-          color = `rgb(0, 255, 0)`;
-      }
+      let color = computeColorFromGrad(diff, grad);
       return {
         type: "Feature",
         properties: {
