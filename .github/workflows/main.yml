@@ -3,7 +3,7 @@ name: Build, Test, Push and Deploy Docker Images
 on:  
   push:
     branches:
-      - server
+      - main
   workflow_dispatch:
 
 jobs:
