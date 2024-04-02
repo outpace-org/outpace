@@ -60,8 +60,8 @@ function Activity({ activity }) {
     }
   }, [actJson, activity.id, geoWithElevations]);
 
-  const mapWidth = window.innerWidth * 0.5;
-  const mapHeight = window.innerHeight * 0.3;
+  const mapWidth = window.innerWidth * 0.35;
+  const mapHeight = window.innerHeight * 0.45;
   const { center, zoom } = centerZoomFromLocations(
     coordinates,
     mapWidth,

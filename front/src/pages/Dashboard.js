@@ -387,10 +387,13 @@ const Dashboard = (props) => {
           )}
 
           <Dialog
-            open={pinnedActivityOpen}
-            onClose={handleClosePinnedActivity}
-            fullWidth={true}
-            maxWidth="md"
+              open={pinnedActivityOpen}
+              onClose={handleClosePinnedActivity}
+              fullWidth={true}
+              maxWidth="md"
+              PaperProps={{
+                style: { maxHeight: '80vh' },
+              }}
           >
             <DialogContent>
               <Activity activity={currentPinnedActivity} />
