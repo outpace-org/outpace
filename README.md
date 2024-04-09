@@ -33,7 +33,3 @@ With docker running, open a terminal at the root of the project and run :
 ```console
 docker-compose up
 ```
-
-## Run without docker
-
-This will come later
