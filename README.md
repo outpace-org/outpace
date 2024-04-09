@@ -1,3 +1,7 @@
+#Project description
+
+Webapp for creating a Strava Dashboard with features like multi-days trips and global heatmap. 
+
 # How to run
 
 ## Add environment variables 
