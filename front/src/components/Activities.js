@@ -75,21 +75,19 @@ function Activities({activities}) {
                             if (hover) {
                                 console.log(feature.properties.name); // Print the name when hovered
                                 setHoveredActivity(index); // Set the hovered activity index
+                                return {strokeWidth: "2", stroke: "red"}; // Change the color to red when hovered
                             } else {
                                 // Delay setting the hoveredActivity state to null
                                 setTimeout(() => {
                                     setHoveredActivity(null); // Clear the hovered activity when the mouse leaves
                                 }, 100);
+                                return {
+                                    fill: "#d4e6ec99",
+                                    strokeWidth: "1",
+                                    stroke: "black",
+                                    r: "20",
+                                };
                             }
-                            if (feature.geometry.type === "LineString") {
-                                return {strokeWidth: "2", stroke: "black"};
-                            }
-                            return {
-                                fill: "#d4e6ec99",
-                                strokeWidth: "1",
-                                stroke: "white",
-                                r: "20",
-                            };
                         }}
                     />
                 );
