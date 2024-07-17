@@ -27,6 +27,15 @@ const setUserTripsReducer = (userTrips = [], action) => {
   }
 };
 
+const setCountryActivitiesReducer = (countryActivities = [], action) => {
+  switch (action.type) {
+    case "SET_COUNTRY_ACTIVITIES":
+      return action.payload;
+    default:
+      return countryActivities;
+  }
+};
+
 const setZoomedsReducer = (zoomeds = null, action) => {
   switch (action.type) {
     case "SET_ZOOMEDS":
@@ -173,4 +182,5 @@ export default combineReducers({
   tripActivities: setTripActivitiesReducer,
   altitudes: setAltitudesReducer,
   tripName: setTripNameReducer,
+  countryActivities: setCountryActivitiesReducer,
 });
