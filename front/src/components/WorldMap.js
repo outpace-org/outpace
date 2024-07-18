@@ -85,7 +85,7 @@ function WorldMap({activities, name}) {
             display: "flex", flexDirection: "column", alignItems: "center", paddingTop: "3em",
         }}
     >
-        <h1>{name} heatmap</h1>
+        <h1>{name} heatmap <span style={{fontSize: '0.4em'}}>(click any country for details)</span></h1>
         <Dialog
             open={countryActivitiesOpen}
             onClose={handleCloseOpenActivity}
