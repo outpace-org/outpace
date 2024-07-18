@@ -3,7 +3,7 @@ import {Map, GeoJson, Marker, Overlay} from "pigeon-maps";
 import {ReactComponent as MarkerIcon} from '../assets/flag-checkered-solid.svg';
 
 import {
-    centerZoomFromLocations,
+    centerZoomFromLocations, convertToKm, formatDate, formatNumber, formatTime,
     getProvider,
 } from "../utils/functions";
 
@@ -66,7 +66,7 @@ function Activities({activities}) {
                                         coordinates: activityCoordinates,
                                     },
                                     properties: {
-                                        name: activity.name, // Add the name of the activity here
+                                        name: activity.name,
                                     },
                                 },
                             ],
@@ -82,7 +82,7 @@ function Activities({activities}) {
                                     setHoveredActivity(null); // Clear the hovered activity when the mouse leaves
                                 }, 100);
                                 return {
-                                    fill: "#d4e6ec99",
+                                    fill: "#d4e6ec66",
                                     strokeWidth: "1",
                                     stroke: "black",
                                     r: "20",
@@ -99,12 +99,20 @@ function Activities({activities}) {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        background: "white",
+                        background: "#d4e6ec79",
                         borderRadius: "10px",
                         padding: "10px",
                     }}
                 >
-                    <p>{activities[hoveredActivity].name}</p>
+                    <h3>{activities[hoveredActivity].name}</h3>
+                    <p>
+                        Total Elevation Gain:{" "}
+                        {formatNumber(activities[hoveredActivity]["total_elevation_gain"])}m
+                    </p>
+                    <p>Elapsed Time: {formatTime(activities[hoveredActivity].elapsed_time)}</p>
+                    <p>Distance: {formatNumber(convertToKm(activities[hoveredActivity].distance))}km</p>
+                    <p>Type: {activities[hoveredActivity].type}</p>
+                    <p>Start Date: {formatDate(activities[hoveredActivity].start_date)}</p>
                 </div>
             )}
         </Map>
