@@ -6,15 +6,14 @@ import {
   convertToKm,
   formatDate,
   formatNumber,
-  formatTime,
+  formatTime, geoJsonFromActivity, geoColorFromGeo,
   getProvider,
-  mapboxProvider,
-  REACT_APP_GOOGLE_API_KEY,
 } from "../utils/functions";
 import { addAltitudeToGeoJson } from "../utils/ElevationComputation";
 import haversine from 'haversine-distance'
 
 const polyline = require("@mapbox/polyline");
+
 
 
 function Activity({ activity }) {
@@ -23,42 +22,23 @@ function Activity({ activity }) {
   coordinates = polyline
     .decode(activity.summary_polyline)
     .map(([lng, lat]) => [lat, lng]);
-  const elevations = activity.elevations;
-  const addElevations = elevations.length === coordinates.length;
-  // creating the geoJson containing activity, adding the elevations if they are in db
-  const actJson = {
-    type: "FeatureCollection",
-    features: coordinates.slice(0, -1).map((coordinate, i) => {
-      const nextCoordinate = coordinates[i + 1];
-      return {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: addElevations
-            ? [
-                [coordinate[0], coordinate[1], elevations[i]],
-                [nextCoordinate[0], nextCoordinate[1], elevations[i + 1]],
-              ]
-            : [coordinate, nextCoordinate],
-        },
-      };
-    }),
-  };
-
-  // if elevations were stored in db, we set them in the geoJsonWithElevations
-  if (addElevations && !geoWithElevations) {
-    setGeoWithElevations(actJson);
-  }
+  const {addElevations, actJson} = geoJsonFromActivity(activity, coordinates);
   useEffect(() => {
     const fetchAltitudes = async () => {
-      const result = await addAltitudeToGeoJson(actJson);
+      const result = await addAltitudeToGeoJson(actJson); //loading the altitudes from an external API
       setGeoWithElevations(result);
-      await addElevationsToActivity(activity.id, result);
+      await addElevationsToActivity(activity.id, result); //storing the altitudes in DB for saving API requests
     };
     if (!geoWithElevations) {
       fetchAltitudes().then((r) => console.log("altitudes fetched", r));
     }
   }, [actJson, activity.id, geoWithElevations]);
+
+
+  // if elevations were stored in db, we set them in the geoJsonWithElevations
+  if (addElevations && !geoWithElevations) {
+    setGeoWithElevations(actJson);
+  }
 
   const mapWidth = window.innerWidth * 0.35;
   const mapHeight = window.innerHeight * 0.45;
@@ -70,32 +50,7 @@ function Activity({ activity }) {
   if (!geoWithElevations) {
     return getMapWithNoColorDiv();
   }
-
-  const geoJsonWithColors = {
-    type: "FeatureCollection",
-    features: geoWithElevations.features.map((feature, i) => {
-      const coordinate = feature.geometry.coordinates[0];
-      const nextCoordinate = feature.geometry.coordinates[1];
-      const dist = haversine({latitude: coordinate[1], longitude: coordinate[0]},
-          {latitude: nextCoordinate[1], longitude: nextCoordinate[0]})
-      const diff = nextCoordinate[2] - coordinate[2];
-      const grad = Math.abs(diff/dist) * 100; //gradient in %
-      let color = computeColorFromGrad(diff, grad);
-      return {
-        type: "Feature",
-        properties: {
-          stroke: color,
-        },
-        geometry: {
-          type: "LineString",
-          coordinates: [
-            [coordinate[0], coordinate[1]],
-            [nextCoordinate[0], nextCoordinate[1]],
-          ],
-        },
-      };
-    }),
-  };
+  const geoJsonWithColors = geoColorFromGeo(geoWithElevations);
 
   function getMapWithColorDiv() {
     return (
