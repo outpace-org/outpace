@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from geopy.geocoders import Nominatim
 
 from .schemas import ActivityInfo
+from .utils import fetch_elevations, decode_polyline
 
 app = FastAPI()
 
@@ -30,9 +31,12 @@ app.add_middleware(
 
 geolocator = Nominatim(user_agent="outpace")
 
+
 def init_db():
     engine, _ = database.get_database_engine_and_session()
     models.Base.metadata.create_all(bind=engine)
+
+
 # Dependency
 def get_db():
     _, SessionLocal = database.get_database_engine_and_session()
@@ -98,6 +102,7 @@ def add_altitudes_to_activity(
 ):
     return crud.add_elevations(db, activity_id=activity_id, elevations=elevations)
 
+
 @app.post("/activities/", response_model=List[schemas.Activity])
 def add_activities(activities: List[schemas.ActivityCreate], background_taks: BackgroundTasks,
                    db: Session = Depends(get_db)):
@@ -107,7 +112,8 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
         if db_refresh_token is None:
             raise HTTPException(status_code=404, detail="RefreshToken not found")
         db_activity = crud.get_activity(db, activity_id=activity.id)
-        if not db_activity and activity.type in ["Run", "Ride", "Hike"] and len(activity.start_latlng) == 2 == len(activity.end_latlng) == 2:
+        if not db_activity and activity.type in ["Run", "Ride", "Hike"] and len(activity.start_latlng) == 2 == len(
+                activity.end_latlng) == 2:
             activity_cpy = schemas.ActivityBase(id=activity.id, strava_id=activity.athlete.id,
                                                 total_elevation_gain=activity.total_elevation_gain,
                                                 elapsed_time=activity.elapsed_time, name=activity.name,
@@ -128,6 +134,27 @@ def add_activities(activities: List[schemas.ActivityCreate], background_taks: Ba
         crud.update_dashboard(db, db_dash.id, False)
     background_taks.add_task(process_activities, activities=db_activities, dash_id=db_dash.id, db=db)
     return db_activities
+
+
+@app.post("/activities/elevation/compute/{strava_id}")
+def compute_elevation(strava_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    db_activities = crud.get_activities_by_strava_id(db, strava_id=strava_id)
+    print("got the activities", len(db_activities))
+    background_tasks.add_task(fetch_and_store_elevations, activities=db_activities, db=db)
+    return {"message": "Elevations will be added"}
+
+
+def fetch_and_store_elevations(activities, db: Session = Depends(get_db)):
+    for activity in activities:
+        if activity.summary_polyline is not None and (activity.elevations is None or len(activity.elevations) == 0):
+            print("loading elevations for", activity.name)
+            succ, elevations = fetch_elevations(decode_polyline(activity.summary_polyline))
+            if succ:
+                crud.add_elevations(db, activity.id, elevations)
+                db.commit()
+                print("added elevations for", activity.name)
+            else:
+                print("failed loading elevations for", activity.name)
 
 
 @app.get("/activities/{strava_id}", response_model=List[schemas.Activity])
@@ -333,8 +360,6 @@ def compute_trips(strava_id: int, db: Session = Depends(get_db)):
     return {"message": "Trips created successfully"}
 
 
-
-
 @app.get("/activities/ranked/{strava_id}/{act_type}/{criteria}", response_model=List[schemas.ActivityBase])
 def get_activity_ranked(strava_id: int, act_type, criteria, limit: int = Query(10, ge=1),
                         db: Session = Depends(get_db)):
@@ -372,6 +397,7 @@ def del_dashboard_token(strava_id: int, db: Session = Depends(get_db)):
         db_dash.token = None
         db.commit()
     return {"message": "Token deleted successfully"}
+
 
 @app.get("/dashboard/share/{token}", response_model=schemas.DashboardShare)
 def get_dashboard_from_token(token: str, db: Session = Depends(get_db)):
