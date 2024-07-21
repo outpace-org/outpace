@@ -356,7 +356,7 @@ export const addElevationsToActivity = async (activityId, geoJson3d) => {
 
 export function geoJsonFromActivity(activity, coordinates) {
   const elevations = activity.elevations;
-  const addElevations = elevationselevations.length === coordinates.length;
+  const addElevations = elevations && elevations.length === coordinates.length;
   // creating the geoJson containing activity, adding the elevations if they are in db
   const actJson = {
     type: "FeatureCollection",
