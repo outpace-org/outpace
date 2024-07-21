@@ -10,8 +10,8 @@ import {
 var polyline = require("@mapbox/polyline");
 
 function Activities({activities}) {
+    console.log("les activités ici ", activities)
     let coordinates = [];
-    let everyCoordinates = [];
     activities.forEach((activity) => {
         try {
             // Check if summary_polyline is not null
@@ -20,9 +20,6 @@ function Activities({activities}) {
                     .decode(activity.summary_polyline)
                     .map(([lng, lat]) => [lat, lng]);
                 coordinates = [...coordinates, ...activityCoordinates];
-                everyCoordinates.push(activityCoordinates);
-            } else {
-                everyCoordinates.push([]);
             }
         } catch (error) {
             console.error(error);
@@ -52,42 +49,48 @@ function Activities({activities}) {
             {activities.map((activity, index) => {
                 let activityCoordinates = [];
                 if (activity.summary_polyline) {
-                    activityCoordinates = everyCoordinates[index];
-                    return (
-                        <GeoJson
-                            key={index}
-                            data={{
-                                type: "Feature",
-                                geometry: {
-                                    type: "LineString",
-                                    coordinates: activityCoordinates,
-                                },
-                                properties: {
-                                    name: activity.name,
-                                },
-                            }}
-                            styleCallback={(feature, hover) => {
-                                if (hover) {
-                                    console.log(feature.properties.name); // Print the name when hovered
-                                    setHoveredActivity(index); // Set the hovered activity index
-                                    return {strokeWidth: "2", stroke: "red"}; // Change the color to red when hovered
-                                } else {
-                                    // Delay setting the hoveredActivity state to null
-                                    setTimeout(() => {
-                                        setHoveredActivity(null); // Clear the hovered activity when the mouse leaves
-                                    }, 100);
-                                    return {
-                                        fill: "#d4e6ec66",
-                                        strokeWidth: "1",
-                                        stroke: "black",
-                                        r: "20",
-                                    };
-                                }
-                            }}
-                        />
-                    );
+                    activityCoordinates = polyline
+                        .decode(activity.summary_polyline)
+                        .map(([lng, lat]) => [lat, lng]);
                 }
-
+                return (
+                    <GeoJson
+                        key={index}
+                        data={{
+                            type: "FeatureCollection",
+                            features: [
+                                {
+                                    type: "Feature",
+                                    geometry: {
+                                        type: "LineString",
+                                        coordinates: activityCoordinates,
+                                    },
+                                    properties: {
+                                        name: activity.name,
+                                    },
+                                },
+                            ],
+                        }}
+                        styleCallback={(feature, hover) => {
+                            if (hover) {
+                                console.log(feature.properties.name); // Print the name when hovered
+                                setHoveredActivity(index); // Set the hovered activity index
+                                return {strokeWidth: "2", stroke: "red"}; // Change the color to red when hovered
+                            } else {
+                                // Delay setting the hoveredActivity state to null
+                                setTimeout(() => {
+                                    setHoveredActivity(null); // Clear the hovered activity when the mouse leaves
+                                }, 100);
+                                return {
+                                    fill: "#d4e6ec66",
+                                    strokeWidth: "1",
+                                    stroke: "black",
+                                    r: "20",
+                                };
+                            }
+                        }}
+                    />
+                );
             })}
             {hoveredActivity !== null && (
                 <div
