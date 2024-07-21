@@ -1,4 +1,4 @@
-name: Build, Test, Push and Deploy Docker Images
+name: Build, Test and Push Docker Images
 
 on:  
   push:
