@@ -17,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 var polyline = require("@mapbox/polyline");
 
-function SmallActivity({ activity, crit }) {
+function ActivityForRanking({ activity, crit }) {
   var coordinates = [];
   try {
     coordinates = polyline
@@ -111,4 +111,4 @@ function SmallActivity({ activity, crit }) {
   );
 }
 
-export default SmallActivity;
+export default ActivityForRanking;

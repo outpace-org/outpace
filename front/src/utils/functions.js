@@ -10,6 +10,7 @@ import getMap from "@geo-maps/countries-maritime-50m";
 import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
 import * as turf from "@turf/turf";
+import haversine from "haversine-distance";
 const geolib = require("geolib");
 
 export const {
@@ -352,6 +353,61 @@ export const addElevationsToActivity = async (activityId, geoJson3d) => {
   const resp = await putActivityElevations(activityId, elevations);
   return resp;
 };
+
+export function geoJsonFromActivity(activity, coordinates) {
+  const elevations = activity.elevations;
+  const addElevations = elevations && elevations.length === coordinates.length;
+  // creating the geoJson containing activity, adding the elevations if they are in db
+  const actJson = {
+    type: "FeatureCollection",
+    features: coordinates.slice(0, -1).map((coordinate, i) => {
+      const nextCoordinate = coordinates[i + 1];
+      return {
+        type: "Feature",
+        geometry: {
+          type: "LineString",
+          coordinates: addElevations
+              ? [
+                [coordinate[0], coordinate[1], elevations[i]],
+                [nextCoordinate[0], nextCoordinate[1], elevations[i + 1]],
+              ]
+              : [coordinate, nextCoordinate],
+        },
+      };
+    }),
+  };
+  return {addElevations, actJson};
+}
+
+export function geoColorFromGeo(geoWithElevations) {
+  const geoJsonWithColors = {
+    type: "FeatureCollection",
+    features: geoWithElevations.features.map((feature, i) => {
+      const coordinate = feature.geometry.coordinates[0];
+      const nextCoordinate = feature.geometry.coordinates[1];
+      const dist = haversine({latitude: coordinate[1], longitude: coordinate[0]},
+          {latitude: nextCoordinate[1], longitude: nextCoordinate[0]})
+      const diff = nextCoordinate[2] - coordinate[2];
+      const grad = Math.abs(diff / dist) * 100; //gradient in %
+      let color = computeColorFromGrad(diff, grad);
+      return {
+        type: "Feature",
+        properties: {
+          stroke: color,
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: [
+            [coordinate[0], coordinate[1]],
+            [nextCoordinate[0], nextCoordinate[1]],
+          ],
+        },
+      };
+    }),
+  };
+  return geoJsonWithColors;
+}
+
 
 export const convertToMiles = (meters) => {
   return (meters * 0.621371) / 1000;

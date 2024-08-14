@@ -53,6 +53,14 @@ export const setAltitudes = (data) => {
   };
 };
 
+export const setCountryActivities = (data) => {
+  return {
+    type: "SET_COUNTRY_ACTIVITIES",
+    payload: data,
+  };
+};
+
+
 export const setUserProfile = (data) => {
   return {
     type: "SET_USER_PROFILE",

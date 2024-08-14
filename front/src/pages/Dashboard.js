@@ -26,7 +26,7 @@ import {
   setZoomeds,
 } from "../actions";
 import Trip from "../components/Trip";
-import SmallActivity from "../components/SmallActivity";
+import ActivityForRanking from "../components/ActivityForRanking";
 import styled from "styled-components";
 import { faStrava } from "@fortawesome/free-brands-svg-icons";
 import {
@@ -377,7 +377,7 @@ const Dashboard = (props) => {
                 }
                 onClick={() => handleClickOpen(activity)}
               >
-                  <SmallActivity activity={activity} />
+                  <ActivityForRanking activity={activity} />
               </div>
             ))
           ) : (
@@ -387,10 +387,13 @@ const Dashboard = (props) => {
           )}
 
           <Dialog
-            open={pinnedActivityOpen}
-            onClose={handleClosePinnedActivity}
-            fullWidth={true}
-            maxWidth="md"
+              open={pinnedActivityOpen}
+              onClose={handleClosePinnedActivity}
+              fullWidth={true}
+              maxWidth="md"
+              PaperProps={{
+                style: { maxHeight: '80vh' },
+              }}
           >
             <DialogContent>
               <Activity activity={currentPinnedActivity} />
