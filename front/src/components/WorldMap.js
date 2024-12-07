@@ -194,15 +194,15 @@ function WorldMap({ activities, name }) {
               displayEmpty
               style={{ width: "150px" }}
               renderValue={() =>
-                distanceFilter === 0 ? "0 - 9999km" : `0 - ${distanceFilter}km`
+                distanceFilter === 0 ? "0 - 9999km" : `≥${distanceFilter}km`
               }
             >
               <MenuItem value={0}>All distances</MenuItem>
-              <MenuItem value={10}>0 - 10km</MenuItem>
-              <MenuItem value={20}>0 - 20km</MenuItem>
-              <MenuItem value={50}>0 - 50km</MenuItem>
-              <MenuItem value={100}>0 - 100km</MenuItem>
-              <MenuItem value={200}>0 - 200km</MenuItem>
+              <MenuItem value={10}>≥10km</MenuItem>
+              <MenuItem value={20}>≥20km</MenuItem>
+              <MenuItem value={50}>≥50km</MenuItem>
+              <MenuItem value={100}>≥100km</MenuItem>
+              <MenuItem value={200}>≥200km</MenuItem>
             </Select>
           </FormGroup>
           <Activities activities={filteredActivities} />
