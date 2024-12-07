@@ -11,6 +11,7 @@ import GeoJsonPolygonLookup from "geojson-geometries-lookup";
 import _ from "lodash";
 import * as turf from "@turf/turf";
 import haversine from "haversine-distance";
+
 const geolib = require("geolib");
 
 export const {
@@ -63,6 +64,7 @@ export const postUserToken = async (toks) => {
     console.log(error);
   }
 };
+
 // Function to get refresh token from the database
 async function getRefreshTokenFromDB(stravaId) {
   try {
@@ -74,6 +76,7 @@ async function getRefreshTokenFromDB(stravaId) {
     console.error("Error during API call", error);
   }
 }
+
 // Function to post new token to the database
 async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
   try {
@@ -91,6 +94,7 @@ async function postNewToken(stravaId, newToken, newRefreshToken, expiresAt) {
     console.error("Error during API call", error);
   }
 }
+
 // To fetch new token from strava and store it in DB
 
 export const reloadToken = async (stravaId) => {
@@ -258,6 +262,7 @@ export const getDashboardFromToken = async (token) => {
     console.log(error);
   }
 };
+
 export async function putDashboardToken(stravaId) {
   try {
     const response = await axios.put(
@@ -268,6 +273,7 @@ export async function putDashboardToken(stravaId) {
     console.error("Error during API call", error);
   }
 }
+
 export const getUserTripsFromDB = async (stravaId) => {
   try {
     const str = `${REACT_APP_HOST_URL}/trips/${stravaId}`;
@@ -367,16 +373,16 @@ export function geoJsonFromActivity(activity, coordinates) {
         geometry: {
           type: "LineString",
           coordinates: addElevations
-              ? [
+            ? [
                 [coordinate[0], coordinate[1], elevations[i]],
                 [nextCoordinate[0], nextCoordinate[1], elevations[i + 1]],
               ]
-              : [coordinate, nextCoordinate],
+            : [coordinate, nextCoordinate],
         },
       };
     }),
   };
-  return {addElevations, actJson};
+  return { addElevations, actJson };
 }
 
 export function geoColorFromGeo(geoWithElevations) {
@@ -385,8 +391,10 @@ export function geoColorFromGeo(geoWithElevations) {
     features: geoWithElevations.features.map((feature, i) => {
       const coordinate = feature.geometry.coordinates[0];
       const nextCoordinate = feature.geometry.coordinates[1];
-      const dist = haversine({latitude: coordinate[1], longitude: coordinate[0]},
-          {latitude: nextCoordinate[1], longitude: nextCoordinate[0]})
+      const dist = haversine(
+        { latitude: coordinate[1], longitude: coordinate[0] },
+        { latitude: nextCoordinate[1], longitude: nextCoordinate[0] },
+      );
       const diff = nextCoordinate[2] - coordinate[2];
       const grad = Math.abs(diff / dist) * 100; //gradient in %
       let color = computeColorFromGrad(diff, grad);
@@ -408,10 +416,10 @@ export function geoColorFromGeo(geoWithElevations) {
   return geoJsonWithColors;
 }
 
-
 export const convertToMiles = (meters) => {
   return (meters * 0.621371) / 1000;
 };
+
 export async function fetchNewActivities(strava_id) {
   const data = await getLastActivityTimestamp(strava_id);
   let mTimestamp = data.last_date;
@@ -437,12 +445,9 @@ export async function fetchNewActivities(strava_id) {
 //      : undefined;
 //}
 export function getProvider(dark) {
-  if (!dark)
-    return mapboxProvider;
-  else
-    return mapboxProviderDark;
+  if (!dark) return mapboxProvider;
+  else return mapboxProviderDark;
 }
-
 
 export function mapboxProvider(x, y, z, dpr) {
   return `https://api.mapbox.com/styles/v1/mapbox/outdoors-v12/tiles/${z}/${x}/${y}${dpr >= 2 ? "@2x" : ""}?access_token=${REACT_APP_MAPBOX_ACCESS_TOKEN}`;
@@ -453,18 +458,32 @@ export function mapboxProviderDark(x, y, z, dpr) {
 }
 
 export function centerZoomFromLocations(locations, width, height) {
+  if (!locations || locations.length === 0) {
+    // Return default values if no coordinates are provided
+    console.log("No locations provided. Using default center and zoom.");
+    return {
+      center: [0, 0], // Default center (e.g., the equator)
+      zoom: 2, // Default zoom level
+    };
+  }
+
   const points = locations.map(([lat, lng]) => turfPoint([lat, lng]));
   const features = turfFeatureCollection(points);
   let bounds = turfBbox(features);
+
+  // Constrain bounds to a maximum latitude of 60
   bounds[1] = Math.min(60, bounds[1]);
   bounds[3] = Math.min(60, bounds[3]);
+
   const { center, zoom } = geoViewport.viewport(bounds, [width, height]);
   console.log("bounds", bounds, "center", center, "zoom", zoom);
+
   return {
     center,
     zoom: Math.min(zoom, 13),
   };
 }
+
 export const getRankedActivities = async (
   stravaId,
   actType,
@@ -490,6 +509,7 @@ export const getPinnedActivities = async (stravaId) => {
   const activities = await response.json();
   return activities;
 };
+
 export function includes(arr, val) {
   let b = false;
   arr.forEach((v) => {
@@ -516,6 +536,7 @@ export function index(arr, val) {
 }
 
 let worldLookup = null;
+
 export function getGeoJsonContainingLatLng(lat, lng) {
   if (worldLookup === null) {
     const map = getMap();
@@ -532,6 +553,7 @@ export function getGeoJsonContainingLatLng(lat, lng) {
     features: feats,
   };
 }
+
 export function getCodes(lat, lng) {
   if (worldLookup === null) {
     const map = getMap();
@@ -547,6 +569,7 @@ export function getCodes(lat, lng) {
   }
   return [];
 }
+
 export const getDashboardURL = (token) => {
   return `${REACT_APP_WEB_URL}/redirectDashboard?token=${token}`;
 };
@@ -572,6 +595,7 @@ export const nameTrip = (trip) => {
 export const shortenText = (str, nb) => {
   return str.length <= nb ? str : `${str.substring(0, nb)}...`;
 };
+
 export function isPointInGeoJson(lat, lng, geoJson) {
   const point = turf.point([lng, lat]);
 
@@ -587,6 +611,7 @@ export function isPointInGeoJson(lat, lng, geoJson) {
 
   return isInside;
 }
+
 function flattenCoordinates(coords) {
   if (!Array.isArray(coords)) {
     return [coords];
@@ -599,6 +624,7 @@ function flattenCoordinates(coords) {
     return flattened.concat(flattenCoordinates(c));
   }, []);
 }
+
 export function concatCoords(geo) {
   let coords = [];
   geo.features.forEach((feature) => {
@@ -607,6 +633,7 @@ export function concatCoords(geo) {
 
   return coords;
 }
+
 export function getExtremeLocations(coords) {
   const bounds = geolib.getBounds(coords);
   return [
@@ -621,22 +648,14 @@ export function computeColorFromGrad(diff, grad) {
   let color;
   if (diff > 0) {
     //going up
-    if (grad < 3)
-      return `rgb(0, 0, 0)`;
-    else if (grad < 5)
-      return `rgb(255, 0, 0)`;
-    else if (grad < 8)
-      return `rgb(169, 2, 2)`;
-    else
-      return 'rgb(147,5,115)'
+    if (grad < 3) return `rgb(0, 0, 0)`;
+    else if (grad < 5) return `rgb(255, 0, 0)`;
+    else if (grad < 8) return `rgb(169, 2, 2)`;
+    else return "rgb(147,5,115)";
   } else {
     //going down
-    if (grad < 3)
-      return `rgb(0, 0, 0)`;
-    else if (grad < 5)
-      return `rgb(0, 125, 0)`;
-    else
-      return `rgb(0, 255, 0)`;
+    if (grad < 3) return `rgb(0, 0, 0)`;
+    else if (grad < 5) return `rgb(0, 125, 0)`;
+    else return `rgb(0, 255, 0)`;
   }
 }
-
