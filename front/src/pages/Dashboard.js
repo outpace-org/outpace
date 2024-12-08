@@ -223,7 +223,7 @@ const Dashboard = (props) => {
   const activityRefs = useRef([]);
 
   const scrollLeft = () => {
-    console.log("scrolling left")
+    console.log("scrolling left");
     if (activityRefs.current[0]) {
       const marginRight = parseFloat(
         window.getComputedStyle(activityRefs.current[0]).marginRight,
@@ -237,7 +237,7 @@ const Dashboard = (props) => {
   };
 
   const scrollRight = () => {
-    console.log("scrolling right")
+    console.log("scrolling right");
     if (activityRefs.current[0]) {
       const marginRight = parseFloat(
         window.getComputedStyle(activityRefs.current[0]).marginRight,
@@ -279,31 +279,38 @@ const Dashboard = (props) => {
 
   return (
     <div style={{ paddingTop: "5em", overflowX: "hidden" }}>
-      <h1 style={{ textAlign: "center" }}>{name} Big Trips</h1>
-      {trips?.map((trip, index) => (
-        <div
-          key={index}
-          onClick={() => handleTripClick(index)}
-          style={{
-            backgroundColor: "white",
-            transition: "background-color 0.1s ease",
-          }}
-          onMouseOver={(e) =>
-            (e.currentTarget.style.backgroundColor = "whitesmoke")
-          }
-          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}
-        >
-          {index === 0 && <hr style={{ margin: "0" }} />}
-          <Trip
-            key={index + zoomeds[index]}
-            trip={trip}
-            index={index}
-            zoomed={zoomeds[index]}
-            onButtonClick={handleTripToggleButtonClick}
-          />
-          <hr style={{ margin: "0" }} />
-        </div>
-      ))}
+      {trips?.length > 0 && (
+        <>
+          <h1 style={{ textAlign: "center" }}>{name} Big Trips</h1>
+          {trips.map((trip, index) => (
+            <div
+              key={index}
+              onClick={() => handleTripClick(index)}
+              style={{
+                backgroundColor: "white",
+                transition: "background-color 0.1s ease",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "whitesmoke")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "white")
+              }
+            >
+              {index === 0 && <hr style={{ margin: "0" }} />}
+              <Trip
+                key={index + zoomeds[index]}
+                trip={trip}
+                index={index}
+                zoomed={zoomeds[index]}
+                onButtonClick={handleTripToggleButtonClick}
+              />
+              <hr style={{ margin: "0" }} />
+            </div>
+          ))}
+        </>
+      )}
+      <WorldMap activities={userActivities} name={name} />
       <div style={{ paddingTop: "2em", position: "relative" }}>
         <h1 style={{ textAlign: "center" }}>
           {name} pinned activities <FontAwesomeIcon icon={faThumbTack} />
@@ -377,7 +384,7 @@ const Dashboard = (props) => {
                 }
                 onClick={() => handleClickOpen(activity)}
               >
-                  <ActivityForRanking activity={activity} />
+                <ActivityForRanking activity={activity} />
               </div>
             ))
           ) : (
@@ -387,13 +394,13 @@ const Dashboard = (props) => {
           )}
 
           <Dialog
-              open={pinnedActivityOpen}
-              onClose={handleClosePinnedActivity}
-              fullWidth={true}
-              maxWidth="md"
-              PaperProps={{
-                style: { maxHeight: '80vh' },
-              }}
+            open={pinnedActivityOpen}
+            onClose={handleClosePinnedActivity}
+            fullWidth={true}
+            maxWidth="md"
+            PaperProps={{
+              style: { maxHeight: "80vh" },
+            }}
           >
             <DialogContent>
               <Activity activity={currentPinnedActivity} />
@@ -432,7 +439,6 @@ const Dashboard = (props) => {
           ))}
         </Modal>
       </div>
-      <WorldMap activities={userActivities} name={name} />
       <h1 style={{ paddingTop: "2em", textAlign: "center" }}>
         {name} biggest activities
       </h1>
@@ -469,7 +475,8 @@ const Dashboard = (props) => {
           onClick={handleButtonClick}
           style={{ marginLeft: "1em", display: "block", margin: "2em auto" }}
         >
-          Fetch new activities from Strava <FontAwesomeIcon icon={faStrava} style={{ color: "#ee5535" }} />
+          Fetch new activities from Strava{" "}
+          <FontAwesomeIcon icon={faStrava} style={{ color: "#ee5535" }} />
         </button>
       )}
       <ToastContainer
