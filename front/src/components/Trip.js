@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Map, GeoJson, Marker } from "pigeon-maps";
-import { ReactComponent as MarkerIcon } from '../assets/flag-checkered-solid.svg';
+import { ReactComponent as MarkerIcon } from "../assets/flag-checkered-solid.svg";
 
 import {
   centerZoomFromLocations,
@@ -17,9 +17,9 @@ import {
 } from "../utils/functions";
 import { connect, useSelector } from "react-redux";
 import { setZoomeds } from "../actions";
-import {faStrava} from "@fortawesome/free-brands-svg-icons";
-import {faLevelUpAlt} from "@fortawesome/free-solid-svg-icons";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { faStrava } from "@fortawesome/free-brands-svg-icons";
+import { faLevelUpAlt } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 var polyline = require("@mapbox/polyline");
 
@@ -31,6 +31,14 @@ const calculateDuration = (startDate, endDate, elapsed_time) => {
   );
   return duration;
 };
+
+const colorSequence = [
+  "rgba(0, 0, 255, 0.3)",
+  "rgba(255,183,0,0.3)",
+  "rgba(0, 255, 0, 0.3)",
+  "rgba(255, 0, 0, 0.3)",
+  "rgba(128, 0, 128, 0.3)",
+];
 
 function useGeoJson() {
   const [data, setData] = useState(null);
@@ -129,62 +137,62 @@ function Trip({ trip, index, onButtonClick }) {
       <div className="column33">
         {/*<h2>Trip #{index + 1}</h2>*/}
         <h2>{nameTrip(trip)}</h2>
-        <div style={{marginLeft: '2em'}}>
+        <div style={{ marginLeft: "2em" }}>
           <p>{duration} days</p>
           <p>{totalDistanceDisplay}km</p>
-          <p>{totalElevationGainDisplay}m <FontAwesomeIcon
-              icon={faLevelUpAlt}
-          /></p>
+          <p>
+            {totalElevationGainDisplay}m <FontAwesomeIcon icon={faLevelUpAlt} />
+          </p>
         </div>
       </div>
-      <div className="column66" style={{position: "relative"}}>
-
+      <div className="column66" style={{ position: "relative" }}>
         <Map
-            width={mapWidth}
-            height={mapHeight}
-            center={[centerZoom.center[1], centerZoom.center[0]]}
-            zoom={centerZoom.zoom}
-            provider={getProvider()}
-            twoFingerDrag={false}
-            mouseEvents={false}
+          width={mapWidth}
+          height={mapHeight}
+          center={[centerZoom.center[1], centerZoom.center[0]]}
+          zoom={centerZoom.zoom}
+          provider={getProvider()}
+          twoFingerDrag={false}
+          mouseEvents={false}
         >
-          {geos?.map((geo, index) => (
+          {geos?.length > 1 &&
+            geos.map((geo, index) => (
               <GeoJson
-                  data={geo}
-                  styleCallback={() => ({
-                    fill: `rgba(${(255 * (index + 1)) / geos.length}, 0, ${255 * (1 - (index + 1) / geos.length)}, .3)`,
-                  })}
+                key={index}
+                data={geo}
+                styleCallback={() => ({
+                  fill: colorSequence[index % colorSequence.length],
+                })}
               />
-          ))}
-
+            ))}
           <GeoJson
-              data={{
-                type: "FeatureCollection",
-                features: [
-                  {
-                    type: "Feature",
-                    geometry: {
-                      type: "LineString",
-                      coordinates,
-                    },
-                    properties: {
-                      prop0: "value0",
-                      prop1: 0.0,
-                    },
+            data={{
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: {
+                    type: "LineString",
+                    coordinates,
                   },
-                ],
-              }}
-              styleCallback={(feature, hover) => {
-                if (feature.geometry.type === "LineString") {
-                  return { strokeWidth: "2", stroke: "black" };
-                }
-                return {
-                  fill: "#d4e6ec99",
-                  strokeWidth: "1",
-                  stroke: "white",
-                  r: "20",
-                };
-              }}
+                  properties: {
+                    prop0: "value0",
+                    prop1: 0.0,
+                  },
+                },
+              ],
+            }}
+            styleCallback={(feature, hover) => {
+              if (feature.geometry.type === "LineString") {
+                return { strokeWidth: "2", stroke: "black" };
+              }
+              return {
+                fill: "#d4e6ec99",
+                strokeWidth: "1",
+                stroke: "white",
+                r: "20",
+              };
+            }}
           />
 
           {trip.activities.map((acti, index) => {
@@ -193,9 +201,12 @@ function Trip({ trip, index, onButtonClick }) {
             }
             if (index === trip.activities.length - 1 && !zoomed) {
               return (
-                  <Marker anchor={acti.end_latlng} title={acti.name}>
-                    <MarkerIcon className="imageFlag" style={{ fill: 'black', height: '1em', width: '1em' }} />
-                  </Marker>
+                <Marker anchor={acti.end_latlng} title={acti.name}>
+                  <MarkerIcon
+                    className="imageFlag"
+                    style={{ fill: "black", height: "1em", width: "1em" }}
+                  />
+                </Marker>
               );
             }
             return null;
