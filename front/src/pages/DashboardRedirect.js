@@ -68,7 +68,7 @@ const DBRedirect = (props) => {
 
   return (
     <div>
-      <Loading text={"Talking to Database."} />
+      <Loading text={"Rides loading."} />
     </div>
   );
 };
