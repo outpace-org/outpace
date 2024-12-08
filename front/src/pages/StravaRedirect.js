@@ -110,7 +110,7 @@ const StravaRedirect = (props) => {
 
   return (
     <div>
-      <Loading text={"Talking to Strava."} />
+      <Loading text={"Connecting with Strava."} />
     </div>
   );
 };
