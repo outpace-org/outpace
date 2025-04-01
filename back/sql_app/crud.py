@@ -1,7 +1,8 @@
 from typing import Optional, List
 
-from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from . import models
 from . import schemas
 

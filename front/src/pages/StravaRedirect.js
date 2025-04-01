@@ -22,7 +22,7 @@ import {
   postUserActivities,
   setStravaId,
   getUserProfile,
-  postUserProfile,
+  postUserProfile, getAllUserActivities,
 } from "../utils/functions";
 
 const StravaRedirect = (props) => {
@@ -41,10 +41,10 @@ const StravaRedirect = (props) => {
 
         // Post Request to Strava (with AuthToken) which returns Refresh Token and and Access Token
         const responseTokens = await testAuthGetter(stravaAuthToken);
-        console.log(responseTokens);
+        console.log("get refresh token", responseTokens);
 
         const responseRegistration = await postUserToken(responseTokens);
-        console.log(responseRegistration);
+        console.log("token to db", responseRegistration);
 
         props.setUserProfile(responseTokens.athlete);
         const accessToken = responseTokens.access_token;
@@ -59,17 +59,17 @@ const StravaRedirect = (props) => {
         const userProfile = await getUserProfile(userID, accessToken);
 
         // Axios request to get users activities
-        const userActivities = await getUserActivities(userID, accessToken);
+        const userActivities = await getAllUserActivities(userID, accessToken);
 
         //posting the user's activities
         const resp = await postUserActivities(userActivities);
         const respProf = await postUserProfile(userProfile);
 
-        console.log(userActivities);
-        console.log(resp);
-        console.log(respProf);
+        console.log("all user activities", userActivities);
+        console.log("activity added response", resp);
+        console.log("profile added response", respProf);
 
-        props.setUsersummary(userActivities.data);
+        props.setUsersummary(userActivities);
 
         props.setUserActivities({
           runTotal: {

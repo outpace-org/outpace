@@ -1,8 +1,5 @@
-from typing import List
-
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, BigInteger, ARRAY, DateTime, \
     UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -67,4 +64,4 @@ class Dashboard(Base):
     token = Column(String)
     name = Column(String)
 
-    __table_args__ = (UniqueConstraint('token', name='unique_tok'), )
+    __table_args__ = (UniqueConstraint('token', name='unique_tok'),)

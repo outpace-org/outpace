@@ -59,6 +59,8 @@ export const postUserToken = async (toks) => {
       },
       body: JSON.stringify(toks),
     });
+    console.log("le lien", `${REACT_APP_HOST_URL}/register_token/`)
+    console.log("le token", JSON.stringify(toks))
     return response.data;
   } catch (error) {
     console.log(error);
@@ -129,13 +131,14 @@ export const reloadToken = async (stravaId) => {
   }
 };
 export const postUserActivities = async (acts) => {
+  console.log("activities envoyées", acts)
   try {
     const response = await fetch(`${REACT_APP_HOST_URL}/activities/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(acts.data),
+      body: JSON.stringify(acts),
     });
     return response.data;
   } catch (error) {
@@ -310,16 +313,33 @@ export const getUserProfile = async (userID, accessToken) => {
     console.log(error);
   }
 };
-export const getUserActivities = async (userID, accessToken) => {
+export const getUserActivities = async (userID, accessToken, page) => {
   try {
     const response = await axios.get(
-      `https://www.strava.com/api/v3/athletes/${userID}/activities?after=1577836800&per_page=200`,
+      `https://www.strava.com/api/v3/athletes/${userID}/activities?per_page=200&page=${page}`,
       { headers: { Authorization: `Bearer ${accessToken}` } },
     );
     return response;
   } catch (error) {
     console.log(error);
   }
+};
+export const getAllUserActivities = async (userID, accessToken) => {
+  let allActivities = [];
+  let page = 1;
+
+  while (true) {
+    const response = await getUserActivities(userID, accessToken, page);
+
+    if (!response || response.data.length === 0) {
+      break;
+    }
+
+    allActivities = allActivities.concat(response.data);
+    page++;
+  }
+
+  return allActivities;
 };
 export const getUserActivitiesAfter = async (userID, accessToken, after) => {
   try {
